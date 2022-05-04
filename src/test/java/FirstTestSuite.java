@@ -9,7 +9,7 @@ public class FirstTestSuite {
 
     @BeforeAll
     static void beforeAll() throws SQLException, IOException {
-        dbConnection = DBHelper.startDBPGConnection("config.properties");
+        dbConnection = DBHelper.startDBPGConnection();
         System.out.println("open db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
 

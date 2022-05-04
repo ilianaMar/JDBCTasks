@@ -1,38 +1,31 @@
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class DBHelper {
     private static Connection dbConn = null;
+    private static final String filePath = "src/test/resources/config.properties";
 
     public static void main(String[] args) {
-        DBHelper dbHelper = new DBHelper();
-        dbHelper.dbConnectWithProperties("config.properties");
+        DBHelper.dbConnectWithProperties();
     }
 
-    private void dbConnectWithProperties(String filename) {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream(filename)) {
+    private static Connection dbConnectWithProperties() {
+        try (FileInputStream input = new FileInputStream(filePath)) {
             Properties prop = new Properties();
-
-            if (input == null) {
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
             prop.load(input);
-            String dbDriverClass = prop.getProperty("db.driver.class");
             String dbConnUrl = prop.getProperty("db.conn.url");
             String dbUserName = prop.getProperty("db.username");
             String dbPassword = prop.getProperty("db.password");
 
-            System.out.println(dbDriverClass);
             System.out.println(dbConnUrl);
             System.out.println(dbUserName);
             System.out.println(dbPassword);
             dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
+            return dbConn;
         } catch (IOException | SQLException  ex) {
             ex.printStackTrace();
         } finally {
@@ -43,13 +36,13 @@ public class DBHelper {
                 e.printStackTrace();
             }
         }
+        return null;
     }
 
-    protected static Connection startDBPGConnection(String filename) throws IOException, SQLException {
-        InputStream input = DBHelper.class.getClassLoader().getResourceAsStream(filename);
+    protected static Connection startDBPGConnection() throws IOException, SQLException {
+        FileInputStream input = new FileInputStream(filePath);
         Properties prop = new Properties();
         prop.load(input);
-        String dbDriverClass = prop.getProperty("db.driver.class");
         String dbConnUrl = prop.getProperty("db.conn.url");
         String dbUserName = prop.getProperty("db.username");
         String dbPassword = prop.getProperty("db.password");
