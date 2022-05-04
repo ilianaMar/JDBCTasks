@@ -10,7 +10,6 @@ import java.io.IOException;
  * and closing connection if it is opened.
  */
 public class DbHelper {
-    static Connection dbConn = null;
     protected static final String postgresConfData = "src/test/resources/config.properties";
     private final String dbConnUrl, dbUserName, dbPassword;
 
@@ -21,7 +20,6 @@ public class DbHelper {
         this.dbConnUrl = prop.getProperty("db.conn.url");
         this.dbUserName = prop.getProperty("db.username");
         this.dbPassword = prop.getProperty("db.password");
-
     }
 
     public static void main(String[] args) throws IOException {
@@ -38,8 +36,7 @@ public class DbHelper {
     }
 
     protected Connection startDbPgConnection() throws SQLException {
-        dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
-        return dbConn;
+        return DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
     }
 
     protected void closeDbPgConnection(Connection dbConn) throws SQLException {
