@@ -5,11 +5,21 @@ import java.sql.SQLException;
 
 @DisplayName("First test suite")
 public class FirstTestSuite {
-    static Connection dbConnection;
+    private static DbHelper dbHelper;
+
+    static {
+        try {
+            dbHelper = new DbHelper(DbHelper.postgresConfData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Connection dbConnection;
 
     @BeforeAll
-    static void beforeAll() throws SQLException, IOException {
-        dbConnection = DbHelper.startDbPgConnection();
+    static void beforeAll() throws SQLException {
+        dbConnection = dbHelper.startDbPgConnection();
         System.out.println("open db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
 
@@ -17,7 +27,7 @@ public class FirstTestSuite {
 
     @AfterAll
     static void afterAll() throws SQLException {
-        DbHelper.closeDbPgConnection(dbConnection);
+        dbHelper.closeDbPgConnection(dbConnection);
         System.out.println("close db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
     }
