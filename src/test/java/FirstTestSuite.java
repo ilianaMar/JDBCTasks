@@ -1,10 +1,7 @@
-import com.github.javafaker.Faker;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.io.IOException;
 import java.sql.SQLException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("First test suite")
 public class FirstTestSuite {

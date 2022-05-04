@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class DBHelper {
+    private static Connection dbConn = null;
 
     public static void main(String[] args) {
         DBHelper dbHelper = new DBHelper();
         dbHelper.dbConnectWithProperties("config.properties");
     }
 
-    private Connection dbConnectWithProperties(String filename) {
-        Connection dbConn = null;
+    private void dbConnectWithProperties(String filename) {
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(filename)) {
 
@@ -21,17 +21,14 @@ public class DBHelper {
 
             if (input == null) {
                 System.out.println("Sorry, unable to find " + filename);
-                return null;
+                return;
             }
 
             prop.load(input);
 
             String dbDriverClass = prop.getProperty("db.driver.class");
-
             String dbConnUrl = prop.getProperty("db.conn.url");
-
             String dbUserName = prop.getProperty("db.username");
-
             String dbPassword = prop.getProperty("db.password");
 
             System.out.println(dbDriverClass);
@@ -41,7 +38,6 @@ public class DBHelper {
 
             Class.forName(dbDriverClass);
             dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
-            return dbConn;
         } catch (IOException | SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
         } finally {
@@ -53,7 +49,6 @@ public class DBHelper {
             }
         }
 
-        return null;
     }
 
     protected static Connection startDBPGConnection(String filename) throws IOException, ClassNotFoundException, SQLException {
@@ -75,15 +70,14 @@ public class DBHelper {
 //        System.out.println(dbPassword);
 
         Class.forName(dbDriverClass);
-        Connection dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
+        dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
         return dbConn;
 
     }
 
-    protected static Connection closeDBPGConnection(Connection dbConn) throws SQLException {
+    protected static void closeDBPGConnection(Connection dbConn) throws SQLException {
         if (!dbConn.isClosed()){
             dbConn.close();
         }
-        return null;
     }
 }
