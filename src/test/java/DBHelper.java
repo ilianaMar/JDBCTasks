@@ -14,9 +14,7 @@ public class DBHelper {
     }
 
     private void dbConnectWithProperties(String filename) {
-
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(filename)) {
-
             Properties prop = new Properties();
 
             if (input == null) {
@@ -25,7 +23,6 @@ public class DBHelper {
             }
 
             prop.load(input);
-
             String dbDriverClass = prop.getProperty("db.driver.class");
             String dbConnUrl = prop.getProperty("db.conn.url");
             String dbUserName = prop.getProperty("db.username");
@@ -35,10 +32,8 @@ public class DBHelper {
             System.out.println(dbConnUrl);
             System.out.println(dbUserName);
             System.out.println(dbPassword);
-
-            Class.forName(dbDriverClass);
             dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
-        } catch (IOException | SQLException | ClassNotFoundException ex) {
+        } catch (IOException | SQLException  ex) {
             ex.printStackTrace();
         } finally {
             try {
@@ -48,31 +43,18 @@ public class DBHelper {
                 e.printStackTrace();
             }
         }
-
     }
 
-    protected static Connection startDBPGConnection(String filename) throws IOException, ClassNotFoundException, SQLException {
+    protected static Connection startDBPGConnection(String filename) throws IOException, SQLException {
         InputStream input = DBHelper.class.getClassLoader().getResourceAsStream(filename);
         Properties prop = new Properties();
         prop.load(input);
-
         String dbDriverClass = prop.getProperty("db.driver.class");
-
         String dbConnUrl = prop.getProperty("db.conn.url");
-
         String dbUserName = prop.getProperty("db.username");
-
         String dbPassword = prop.getProperty("db.password");
-
-//        System.out.println(dbDriverClass);
-//        System.out.println(dbConnUrl);
-//        System.out.println(dbUserName);
-//        System.out.println(dbPassword);
-
-        Class.forName(dbDriverClass);
         dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
         return dbConn;
-
     }
 
     protected static void closeDBPGConnection(Connection dbConn) throws SQLException {

@@ -8,10 +8,10 @@ public class FirstTestSuite {
     static Connection dbConnection;
 
     @BeforeAll
-    static void beforeAll() throws SQLException, IOException, ClassNotFoundException {
+    static void beforeAll() throws SQLException, IOException {
         dbConnection = DBHelper.startDBPGConnection("config.properties");
         System.out.println("open db connection");
-        System.out.println(dbConnection.isClosed());
+        System.out.println("DB connection is closed = " + dbConnection.isClosed());
 
     }
 
@@ -19,7 +19,7 @@ public class FirstTestSuite {
     static void afterAll() throws SQLException {
         DBHelper.closeDBPGConnection(dbConnection);
         System.out.println("close db connection");
-        System.out.println(dbConnection.isClosed());
+        System.out.println("DB connection is closed = " + dbConnection.isClosed());
     }
 
     @Test
