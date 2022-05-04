@@ -9,7 +9,7 @@ public class FirstTestSuite {
 
     @BeforeAll
     static void beforeAll() throws SQLException, IOException {
-        dbConnection = DBHelper.startDBPGConnection();
+        dbConnection = DbHelper.startDBPGConnection();
         System.out.println("open db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
 
@@ -17,7 +17,7 @@ public class FirstTestSuite {
 
     @AfterAll
     static void afterAll() throws SQLException {
-        DBHelper.closeDBPGConnection(dbConnection);
+        DbHelper.closeDBPGConnection(dbConnection);
         System.out.println("close db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
     }

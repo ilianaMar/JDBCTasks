@@ -5,12 +5,16 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.io.IOException;
 
-public class DBHelper {
+/**
+ * Database helper functions for establishing db connections with provided database configuration data
+ * and closing connection if it is opened.
+ */
+public class DbHelper {
     private static Connection dbConn = null;
     private static final String filePath = "src/test/resources/config.properties";
 
     public static void main(String[] args) {
-        DBHelper.dbConnectWithProperties();
+        DbHelper.dbConnectWithProperties();
     }
 
     private static Connection dbConnectWithProperties() {
