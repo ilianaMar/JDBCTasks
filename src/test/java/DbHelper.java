@@ -43,7 +43,7 @@ public class DbHelper {
         return null;
     }
 
-    protected static Connection startDBPGConnection() throws IOException, SQLException {
+    protected static Connection startDbPgConnection() throws IOException, SQLException {
         FileInputStream input = new FileInputStream(filePath);
         Properties prop = new Properties();
         prop.load(input);
@@ -54,7 +54,7 @@ public class DbHelper {
         return dbConn;
     }
 
-    protected static void closeDBPGConnection(Connection dbConn) throws SQLException {
+    protected static void closeDbPgConnection(Connection dbConn) throws SQLException {
         if (!dbConn.isClosed()){
             dbConn.close();
         }
