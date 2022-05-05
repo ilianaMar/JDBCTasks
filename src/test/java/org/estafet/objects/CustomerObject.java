@@ -1,31 +1,29 @@
 package org.estafet.objects;
 import org.estafet.models.CustomerModel;
-import org.estafet.helpers.DbHelper;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 
 
 public class CustomerObject implements Customer{
 
-    public int create(CustomerModel customer) throws SQLException, IOException {
-        DbHelper dbConnection = new DbHelper(DbHelper.postgresConfData);
-
+    public int create(Connection dbConnection, CustomerModel customer) throws SQLException, IOException {
         String query
-                = "insert into public.customers(name, email, phone, age, gdpr_set, is_active"
-                + "VALUES (?, ?, ?, ?, ?, ? )";
-        PreparedStatement ps = dbConnection.dbConnectWithProperties(query);
+                = "insert into public.customers(name, email, phone, age, gdpr_set, is_active)" +
+                "VALUES (?, ?, ?, ?, ?, ? )";
+        PreparedStatement ps = dbConnection.prepareStatement(query);
         ps.setString(1, customer.getName());
         ps.setString(2, customer.getEmail());
         ps.setString(3, customer.getPhone());
         ps.setInt(4, customer.getAge());
         ps.setBoolean(5, customer.isGdpr_set());
         ps.setBoolean(6, customer.is_active());
-        int n = ps.executeUpdate();
-        return n;
+        return ps.executeUpdate();
     }
 
 
@@ -39,8 +37,29 @@ public class CustomerObject implements Customer{
     }
 
 
-    public List<CustomerModel> getCustomers() throws SQLException {
-        return null;
+    public List<CustomerModel> getCustomers(Connection dbConnection) throws SQLException {
+        String query = "select * from public.customers";
+        PreparedStatement ps = dbConnection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        List<CustomerModel> customers = new ArrayList<>();
+
+        while (rs.next()) {
+            CustomerModel customer = new CustomerModel();
+            customer.setCustomer_id(rs.getInt("customer_id"));
+            customer.setName(rs.getString("name"));
+            customer.setEmail(rs.getString("email"));
+            customer.setPhone(rs.getString("phone"));
+            customer.setAge(rs.getInt("age"));
+            customer.setGdpr_set(rs.getBoolean("gdpr_set"));
+            customer.set_active(rs.getBoolean("is_active"));
+            customer.setCreated_time(rs.getTimestamp("created_time"));
+            customer.setUpdated_time(rs.getTimestamp("updated_time"));
+            customer.setReason_for_deactivation(rs.getString("reason_for_deactivation"));
+            customer.setNotes(rs.getString("notes"));
+            customer.setAddress_id(rs.getInt("address_id"));
+            customers.add(customer);
+        }
+        return customers;
     }
 
 
