@@ -1,6 +1,8 @@
+package org.estafet.helpers;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.io.IOException;
@@ -10,7 +12,7 @@ import java.io.IOException;
  * and closing connection if it is opened.
  */
 public class DbHelper {
-    protected static final String postgresConfData = "src/test/resources/config.properties";
+    public static final String postgresConfData = "src/test/resources/config.properties";
     private final String dbConnUrl, dbUserName, dbPassword;
 
     public DbHelper(String confFile) throws IOException {
@@ -23,23 +25,25 @@ public class DbHelper {
     }
 
     public static void main(String[] args) throws IOException {
-       DbHelper dbConnection = new DbHelper(postgresConfData);
-       dbConnection.dbConnectWithProperties();
+
     }
 
-    private void dbConnectWithProperties() {
+    public PreparedStatement dbConnectWithProperties(String query) {
         try (Connection dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword)) {
             System.out.println(dbConn.isClosed());
+            PreparedStatement prepareStatement = dbConn.prepareStatement(query);
+            return prepareStatement;
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        return null;
     }
 
-    protected Connection startDbPgConnection() throws SQLException {
+    public Connection startDbConnection() throws SQLException {
         return DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
     }
 
-    protected void closeDbPgConnection(Connection dbConn) throws SQLException {
+    public void closeDbConnection(Connection dbConn) throws SQLException {
         if (!dbConn.isClosed()){
             dbConn.close();
         }
