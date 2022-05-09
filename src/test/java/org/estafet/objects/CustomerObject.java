@@ -1,5 +1,5 @@
 package org.estafet.objects;
-import org.estafet.models.CustomerModel;
+import org.estafet.models.Customer;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,9 +10,9 @@ import java.util.List;
 
 
 
-public class CustomerObject implements Customer{
+public class CustomerObject implements CustomerInterface{
 
-    public int create(Connection dbConnection, CustomerModel customer) throws SQLException, IOException {
+    public int create(Connection dbConnection, Customer customer) throws SQLException, IOException {
         String query
                 = "insert into public.customers(name, email, phone, age, gdpr_set, is_active)" +
                 "VALUES (?, ?, ?, ?, ?, ? )";
@@ -32,19 +32,19 @@ public class CustomerObject implements Customer{
     }
 
 
-    public CustomerModel getCustomer(int id) throws SQLException {
+    public Customer getCustomer(int id) throws SQLException {
         return null;
     }
 
 
-    public List<CustomerModel> getCustomers(Connection dbConnection) throws SQLException {
+    public List<Customer> getCustomers(Connection dbConnection) throws SQLException {
         String query = "select * from public.customers";
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
-        List<CustomerModel> customers = new ArrayList<>();
+        List<Customer> customers = new ArrayList<>();
 
         while (rs.next()) {
-            CustomerModel customer = new CustomerModel();
+            Customer customer = new Customer();
             customer.setCustomer_id(rs.getInt("customer_id"));
             customer.setName(rs.getString("name"));
             customer.setEmail(rs.getString("email"));
@@ -63,7 +63,7 @@ public class CustomerObject implements Customer{
     }
 
 
-    public void update(CustomerModel customer) throws SQLException {
+    public void update(Customer customer) throws SQLException {
 
     }
 }

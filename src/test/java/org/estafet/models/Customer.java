@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-public class CustomerModel {
+public class Customer {
     String name, email , reason_for_deactivation, notes, phone;
     int customer_id, age, address_id;
     boolean is_active, gdpr_set;

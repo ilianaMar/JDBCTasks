@@ -1,5 +1,4 @@
 package org.estafet;
-import org.estafet.helpers.DbHelper;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.io.IOException;
@@ -7,7 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 import com.github.javafaker.Faker;
 import org.estafet.objects.CustomerObject;
-import org.estafet.models.CustomerModel;
+import org.estafet.models.Customer;
+import org.estafet.helpers.DbHelper;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("First test suite")
@@ -50,7 +50,7 @@ public class FirstTestSuite {
     @DisplayName("Second test with insert db record")
     void testCustomerInsertion() throws SQLException, IOException {
         Faker faker = new Faker();
-        CustomerModel newCustomer = new CustomerModel();
+        Customer newCustomer = new Customer();
         CustomerObject customerObject = new CustomerObject();
         newCustomer.setName(faker.name().fullName());
         newCustomer.setAge(faker.number().numberBetween(20,90));
@@ -65,9 +65,9 @@ public class FirstTestSuite {
     @DisplayName("Third test with get all customers")
     void testGetAllCustomers() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<CustomerModel> customers = customerObject.getCustomers(dbConnection);
+        List<Customer> customers = customerObject.getCustomers(dbConnection);
 //        System.out.println(customers.get(customers.size()-1));
-        for (CustomerModel allCustomers : customers) {
+        for (Customer allCustomers : customers) {
             System.out.println(allCustomers);
         }
     }
@@ -76,8 +76,8 @@ public class FirstTestSuite {
     @DisplayName("Get first customer is correct")
     void getFirstCustomer() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<CustomerModel> customers = customerObject.getCustomers(dbConnection);
-        CustomerModel firstCustomer = customers.get(0);
+        List<Customer> customers = customerObject.getCustomers(dbConnection);
+        Customer firstCustomer = customers.get(0);
         System.out.println(firstCustomer);
         assertEquals(1, firstCustomer.getCustomer_id());
         assertEquals("iliana", firstCustomer.getName());
