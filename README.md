@@ -8,3 +8,6 @@ and PostgresSQL version 14.2
 automatically closed
 - create single database connection before tests start and close it after last test is executed 
 
+### JDBC: Mapping data to POJOs
+- Lombok usage
+- JDBC Result Sets
