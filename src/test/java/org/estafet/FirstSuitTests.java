@@ -11,7 +11,7 @@ import org.estafet.helpers.DbHelper;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("First test suite")
-public class FirstTestSuite {
+public class FirstSuitTests {
     private static DbHelper dbHelper;
 
     static {
