@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface CustomerInterface {
-    int create(Connection dbConnection, Customer customer) throws SQLException, IOException;
+    int save(Connection dbConnection, Customer customer) throws SQLException, IOException;
     void delete(int customer_id) throws SQLException;
     Customer getCustomer(int id) throws SQLException;
     List<Customer> getCustomers(Connection dbConnection) throws SQLException;

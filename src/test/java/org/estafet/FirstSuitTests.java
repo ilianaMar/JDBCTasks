@@ -1,4 +1,6 @@
 package org.estafet;
+import org.estafet.models.CustomerAddress;
+import org.estafet.objects.CustomerAddressObject;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.io.IOException;
@@ -50,15 +52,41 @@ public class FirstSuitTests {
     @DisplayName("Second test with insert db record")
     void testCustomerInsertion() throws SQLException, IOException {
         Faker faker = new Faker();
-        Customer newCustomer = new Customer();
         CustomerObject customerObject = new CustomerObject();
-        newCustomer.setName(faker.name().fullName());
-        newCustomer.setAge(faker.number().numberBetween(20,90));
-        newCustomer.setEmail(faker.internet().emailAddress());
-        newCustomer.setPhone(faker.phoneNumber().cellPhone());
-        newCustomer.set_active(true);
-        newCustomer.setGdpr_set(true);
-        customerObject.create(dbConnection, newCustomer);
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        CustomerAddress newCustomerAddress = CustomerAddress.builder()
+                .address(faker.address().streetName())
+                .city(faker.address().city())
+                .country(faker.address().country())
+                .state(faker.address().state())
+                .postal_code(faker.number().numberBetween(1000,9000))
+                .build();
+        customerAddressObject.save(dbConnection, newCustomerAddress);
+        List<CustomerAddress> customerAddresses = customerAddressObject.getCustomerAddresses(dbConnection);
+        CustomerAddress lastCustomerAddress = customerAddresses.get(customerAddresses.size()-1);
+        Customer newCustomer = Customer.builder()
+                .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
+                .age(faker.number().numberBetween(20,90))
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().cellPhone())
+                .is_active(true)
+                .gdpr_set(true)
+                .address_id(lastCustomerAddress.getAddress_id())
+                .build();
+        customerObject.save(dbConnection, newCustomer);
+        List<Customer> customers = customerObject.getCustomers(dbConnection);
+        Customer lastCustomer = customers.get(customers.size()-1);
+        assertEquals(lastCustomer.getName(), newCustomer.getName());
+        assertEquals(lastCustomer.getEmail(), newCustomer.getEmail());
+        assertEquals(lastCustomer.getAge(), newCustomer.getAge());
+        assertEquals(lastCustomer.getPhone(), newCustomer.getPhone());
+        assertEquals(lastCustomer.getAddress_id(), lastCustomerAddress.getAddress_id());
+        assertNotNull(lastCustomer.getCreated_time());
+        assertNull(lastCustomer.getReason_for_deactivation());
+        assertNull(lastCustomer.getUpdated_time());
+        assertNull(lastCustomer.getNotes());
+        assertTrue(lastCustomer.is_active());
+        assertTrue(lastCustomer.isGdpr_set());
     }
 
     @Test
