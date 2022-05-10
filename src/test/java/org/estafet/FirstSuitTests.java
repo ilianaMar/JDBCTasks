@@ -5,12 +5,15 @@ import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import com.github.javafaker.Faker;
 import org.estafet.objects.CustomerObject;
 import org.estafet.models.Customer;
 import org.estafet.helpers.DbHelper;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("First test suite")
 public class FirstSuitTests {
@@ -42,15 +45,8 @@ public class FirstSuitTests {
     }
 
     @Test
-    @DisplayName("First test with db connection")
-    void simpleTest(){
-        System.out.println("hello");
-    }
-
-    @Test
-    @Disabled("This will be implemented in next task")
     @DisplayName("Second test with insert db record")
-    void testCustomerInsertion() throws SQLException, IOException {
+    void testCustomerInsertion() throws SQLException {
         Faker faker = new Faker();
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
@@ -114,5 +110,123 @@ public class FirstSuitTests {
         assertEquals(38, firstCustomer.getAge());
         assertTrue(firstCustomer.is_active());
         assertTrue(firstCustomer.isGdpr_set());
+    }
+
+    @Test
+    @DisplayName("Get customer and address by id")
+    void getSpecificCustomerData() throws SQLException {
+        CustomerObject customerObject = new CustomerObject();
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        Customer firstCustomer = customerObject.getById(dbConnection, 1);
+        CustomerAddress firstCustomerAddress = customerAddressObject.getById(dbConnection, 1);
+        HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 1);
+
+        for(Customer customer: allCustomersData.keySet()){
+            assertEquals(firstCustomer.getCustomer_id(), customer.getCustomer_id());
+            assertEquals(firstCustomer.getName(), customer.getName());
+            assertEquals(firstCustomer.getPhone(), customer.getPhone());
+            assertEquals(firstCustomer.getEmail(), customer.getEmail());
+            assertEquals(firstCustomer.getAge(), customer.getAge());
+            assertEquals(firstCustomerAddress.getAddress(), allCustomersData.get(customer).getAddress());
+            assertEquals(firstCustomerAddress.getAddress_id(), allCustomersData.get(customer).getAddress_id());
+            assertEquals(firstCustomerAddress.getCity(), allCustomersData.get(customer).getCity());
+            assertEquals(firstCustomerAddress.getCountry(), allCustomersData.get(customer).getCountry());
+            assertEquals(firstCustomerAddress.getProvince(), allCustomersData.get(customer).getProvince());
+            assertEquals(firstCustomerAddress.getState(), allCustomersData.get(customer).getState());
+//            System.out.println(customer);
+//            System.out.println(allCustomersData.get(customer));
+        }
+    }
+
+    @Test
+    @DisplayName("Delete customer and address by id")
+    void deleteSpecificCustomerData() throws SQLException {
+        int customer_id = 11;
+        int address_id = 0;
+
+        CustomerObject customerObject = new CustomerObject();
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, customer_id);
+        for(Customer customer: allCustomersData.keySet()){
+            address_id = allCustomersData.get(customer).getAddress_id();
+            customerObject.delete(dbConnection, customer.getCustomer_id());
+            customerAddressObject.delete(dbConnection, address_id);
+
+        }
+        assertEquals(customerObject.getById(dbConnection, customer_id).getCustomer_id(), 0);
+        assertEquals(customerAddressObject.getById(dbConnection, address_id).getAddress_id(), 0);
+    }
+
+    @Test
+    @DisplayName("Get customer by ids")
+    void getCustomerByCustomerIds() throws SQLException {
+        List<Integer> ids =  new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        CustomerObject customerObject = new CustomerObject();
+        List<Customer> customers= customerObject.getByIds(dbConnection, ids);
+        for (Customer customer : customers){
+            assertEquals(customers.size(), ids.size());
+            System.out.println(customer);
+        }
+    }
+
+    @Test
+    @DisplayName("Get customer address by ids")
+    void getCustomerAddressByIds() throws SQLException {
+        List<Integer> ids =  new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        List<CustomerAddress> addresses= customerAddressObject.getByIds(dbConnection, ids);
+        for (CustomerAddress address : addresses){
+            assertEquals(addresses.size(), ids.size());
+            System.out.println(address);
+        }
+    }
+
+    @Test
+    @DisplayName("Get addresses and customers count")
+    void getAllCount() throws SQLException {
+        CustomerObject customerObject = new CustomerObject();
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        System.out.println("Customers count is " + customerObject.getAllRecordsCount(dbConnection));
+        System.out.println("Addresses count is " + customerAddressObject.getAllRecordsCount(dbConnection));
+    }
+
+    @Test
+    @DisplayName("Get random customer")
+    void getRandomCustomer() throws SQLException {
+        CustomerObject customerObject = new CustomerObject();
+        Customer randomCustomer = customerObject.getByRandomId(dbConnection);
+
+        System.out.println(randomCustomer);
+    }
+
+    @Test
+    @DisplayName("Get random address")
+    void getRandomAddress() throws SQLException {
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        CustomerAddress randomAddress = customerAddressObject.getByRandomId(dbConnection);
+
+        System.out.println(randomAddress);
+    }
+
+    @Test
+    @DisplayName("Get random 5 addresses")
+    void getRandomAddressesIds() throws SQLException {
+        CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        List<Integer> randIds =  customerAddressObject.getRandomIds(dbConnection, 5);
+
+        System.out.println(randIds);
+    }
+
+    @Test
+    @DisplayName("Get random 5 customers")
+    void getRandomCustomerIds() throws SQLException {
+        CustomerObject customerObject = new CustomerObject();
+        List<Integer> randIds =  customerObject.getRandomIds(dbConnection, 5);
+
+        System.out.println(randIds);
     }
 }
