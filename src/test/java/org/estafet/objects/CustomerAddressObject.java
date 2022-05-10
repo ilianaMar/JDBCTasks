@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerAddressObject implements CustomerAddressInterface{
+public class CustomerAddressObject implements DAOInterface<CustomerAddress>{
     public int save(Connection dbConnection, CustomerAddress customerAddress) throws SQLException, IOException {
         String query
                 = "insert into public.customers_addresses(address, city, province, state, country, postal_code)" +
@@ -25,7 +25,23 @@ public class CustomerAddressObject implements CustomerAddressInterface{
         return ps.executeUpdate();
     }
 
-    public List<CustomerAddress> getCustomerAddresses(Connection dbConnection) throws SQLException {
+    public void delete(Connection dbConnection, int customer_id) throws SQLException {
+
+    }
+
+    public void deleteAll(Connection dbConnection) throws SQLException {
+
+    }
+
+    public CustomerAddress getById(Connection dbConnection, int id) throws SQLException {
+        return null;
+    }
+
+    public CustomerAddress getByIds(Connection dbConnection, int[] ids) throws SQLException {
+        return null;
+    }
+
+    public List<CustomerAddress> getAll(Connection dbConnection) throws SQLException {
         String query = "select * from public.customers_addresses";
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();

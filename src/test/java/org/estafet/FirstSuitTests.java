@@ -62,7 +62,7 @@ public class FirstSuitTests {
                 .postal_code(faker.number().numberBetween(1000,9000))
                 .build();
         customerAddressObject.save(dbConnection, newCustomerAddress);
-        List<CustomerAddress> customerAddresses = customerAddressObject.getCustomerAddresses(dbConnection);
+        List<CustomerAddress> customerAddresses = customerAddressObject.getAll(dbConnection);
         CustomerAddress lastCustomerAddress = customerAddresses.get(customerAddresses.size()-1);
         Customer newCustomer = Customer.builder()
                 .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
@@ -74,7 +74,7 @@ public class FirstSuitTests {
                 .address_id(lastCustomerAddress.getAddress_id())
                 .build();
         customerObject.save(dbConnection, newCustomer);
-        List<Customer> customers = customerObject.getCustomers(dbConnection);
+        List<Customer> customers = customerObject.getAll(dbConnection);
         Customer lastCustomer = customers.get(customers.size()-1);
         assertEquals(lastCustomer.getName(), newCustomer.getName());
         assertEquals(lastCustomer.getEmail(), newCustomer.getEmail());
@@ -93,7 +93,7 @@ public class FirstSuitTests {
     @DisplayName("Third test with get all customers")
     void testGetAllCustomers() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<Customer> customers = customerObject.getCustomers(dbConnection);
+        List<Customer> customers = customerObject.getAll(dbConnection);
 //        System.out.println(customers.get(customers.size()-1));
         for (Customer allCustomers : customers) {
             System.out.println(allCustomers);
@@ -104,7 +104,7 @@ public class FirstSuitTests {
     @DisplayName("Get first customer is correct")
     void getFirstCustomer() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<Customer> customers = customerObject.getCustomers(dbConnection);
+        List<Customer> customers = customerObject.getAll(dbConnection);
         Customer firstCustomer = customers.get(0);
         System.out.println(firstCustomer);
         assertEquals(1, firstCustomer.getCustomer_id());

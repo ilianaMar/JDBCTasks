@@ -10,7 +10,7 @@ import java.util.List;
 
 
 
-public class CustomerObject implements CustomerInterface{
+public class CustomerObject implements DAOInterface<Customer> {
 
     public int save(Connection dbConnection, Customer customer) throws SQLException, IOException {
         String query
@@ -28,17 +28,29 @@ public class CustomerObject implements CustomerInterface{
     }
 
 
-    public void delete(int customer_id) throws SQLException {
+//    delete - deletes the record from the database
+    public void delete(Connection dbConnection, int customer_id) throws SQLException {
+
+    }
+
+//    deleteAll - deletes all records in the table
+    public void deleteAll(Connection dbConnection) throws SQLException {
 
     }
 
 
-    public Customer getCustomer(int id) throws SQLException {
+//    getById - get a single record from the table by id
+    public Customer getById(Connection dbConnection, int id) throws SQLException {
+        return null;
+    }
+
+//    getByIds - get a list of records by list of ids
+    public Customer getByIds(Connection dbConnection, int[] ids) throws SQLException {
         return null;
     }
 
 
-    public List<Customer> getCustomers(Connection dbConnection) throws SQLException {
+    public List<Customer> getAll(Connection dbConnection) throws SQLException {
         String query = "select * from public.customers";
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
@@ -62,10 +74,5 @@ public class CustomerObject implements CustomerInterface{
             customers.add(customer);
         }
         return customers;
-    }
-
-
-    public void update(Customer customer) throws SQLException {
-
     }
 }
