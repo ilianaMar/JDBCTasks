@@ -11,3 +11,7 @@ automatically closed
 ### JDBC: Mapping data to POJOs
 - Lombok usage
 - JDBC Result Sets
+
+### JDBC:DAO'S
+- Use Lombok builder annotation
+- Use DAO pattern to build application layer
