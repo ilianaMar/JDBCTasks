@@ -12,7 +12,7 @@ Feature: Customer CRUD tests
     Then I verify that customer is created correctly
 
   Scenario: Check that customer cannot be created without mandatory fields
-    Given I create 1 customer without mandatory fields
-    Then I cannot save the customer
-
-
+    Given I create 1 customer without mandatory fields name
+    And I cannot save the customer without name
+    Given I create 1 customer without mandatory fields address_id
+    Then I cannot save the customer without address_id

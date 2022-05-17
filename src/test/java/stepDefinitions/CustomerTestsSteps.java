@@ -5,16 +5,15 @@ import io.cucumber.java.BeforeAll;
 import io.cucumber.java.AfterAll;
 import org.estafet.helpers.DbHelper;
 import java.io.IOException;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import com.github.javafaker.Faker;
+import org.estafet.models.Customer;
 import org.estafet.models.CustomerAddress;
 import org.estafet.objects.CustomerAddressObject;
 import org.estafet.objects.CustomerObject;
-import org.estafet.models.Customer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CustomerTestsSteps {
@@ -34,6 +33,7 @@ public class CustomerTestsSteps {
     CustomerAddress newCustomerAddress;
     Customer newCustomer;
     Faker faker;
+    String message;
 
     @BeforeAll(order=1)
     public static void startDBConnection() throws SQLException {
@@ -58,37 +58,46 @@ public class CustomerTestsSteps {
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
     }
 
-    @Given("^I create (\\d+) (customer|customers) with all mandatory fields$")
-    public void iUseSimpleString(int customerNumber, String string) throws SQLException {
+    @Given("^I create (\\d+) customers{0,1} with all mandatory fields$")
+    public void iCreateCustomers(int customerNumber) {
         faker = new Faker();
-        for (int i= 0; i < customerNumber; i++){
-            newCustomerAddress = CustomerAddress.builder()
-                    .address(faker.address().streetName())
-                    .city(faker.address().city())
-                    .country(faker.address().country())
-                    .state(faker.address().state())
-                    .postal_code(faker.number().numberBetween(1000,9000))
-                    .build();
-            customerAddressObject.save(dbConnection, newCustomerAddress);
-            customerAddresses = customerAddressObject.getAll(dbConnection);
-            CustomerAddress lastCustomerAddress = customerAddresses.get(customerAddresses.size()-1);
-            newCustomer = Customer.builder()
-                    .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
-                    .age(faker.number().numberBetween(20,90))
-                    .email(faker.internet().emailAddress())
-                    .phone(faker.phoneNumber().cellPhone())
-                    .is_active(true)
-                    .gdpr_set(true)
-                    .address_id(lastCustomerAddress.getAddress_id())
-                    .build();
-            customerObject.save(dbConnection, newCustomer);
+        try {
+            for (int i= 0; i < customerNumber; i++){
+                newCustomerAddress = CustomerAddress.builder()
+                        .address(faker.address().streetName())
+                        .city(faker.address().city())
+                        .country(faker.address().country())
+                        .state(faker.address().state())
+                        .postal_code(faker.number().numberBetween(1000,9000))
+                        .build();
+                customerAddressObject.save(dbConnection, newCustomerAddress);
+                customerAddresses = customerAddressObject.getAll(dbConnection);
+                System.out.println("1111" + customerAddresses);
+                CustomerAddress lastCustomerAddress = customerAddresses.get(i);
+                newCustomer = Customer.builder()
+                        .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
+                        .age(faker.number().numberBetween(20,90))
+                        .email(faker.internet().emailAddress())
+                        .phone(faker.phoneNumber().cellPhone())
+                        .is_active(true)
+                        .gdpr_set(true)
+                        .address_id(lastCustomerAddress.getAddress_id())
+                        .build();
+                customerObject.save(dbConnection, newCustomer);
+            }
+        }
+        catch(SQLException sqe){
+            System.out.println("Error Code = " + sqe.getErrorCode());
+            System.out.println("SQL state = " + sqe.getSQLState());
+            System.out.println("Message = " + sqe.getMessage());
+
+            message = sqe.getMessage();
         }
     }
 
     @Then("I check that  there are no customers without address")
     public void iCheckThatThereAreNoCustomersWithoutAddress() {
         for(CustomerAddress address : customerAddresses){
-            System.out.println(address.getAddress());
             assertTrue(!address.getAddress().isEmpty() && !address.getAddress().isBlank());
         }
     }
@@ -97,10 +106,16 @@ public class CustomerTestsSteps {
     public void iCompareCustomersPhoneAndEmailThemThatAreNotEqual() throws SQLException {
         List<Customer> getAllCustomers = customerObject.getAll(dbConnection);
 
-        for (int i = 0; i < getAllCustomers.size() - 1; ++i){
-            assertNotEquals(getAllCustomers.get(i).getPhone(), getAllCustomers.get(i+1).getPhone());
-            assertNotEquals(getAllCustomers.get(i).getEmail(), getAllCustomers.get(i+1).getEmail());
+        List<String> listPhones = new ArrayList<>();
+        List<String> listEmails= new ArrayList<>();
+        for (Customer customer : getAllCustomers){
+            listPhones.add(customer.getPhone());
+            listEmails.add(customer.getEmail());
         }
+        Set<String> setPhones = new HashSet<>(listPhones);
+        Set<String> setEmails = new HashSet<>(listEmails);
+        assertEquals(setPhones.size(), listPhones.size());
+        assertEquals(setEmails.size(), listEmails.size());
     }
 
     @Then("I verify that customer is created correctly")
@@ -109,7 +124,6 @@ public class CustomerTestsSteps {
         List<CustomerAddress> getAllCustomerAddresses = customerAddressObject.getAll(dbConnection);
         assertEquals(1, getAllCustomers.size());
         assertEquals(1, getAllCustomerAddresses.size());
-        System.out.println(newCustomer.getName());
         for (Customer customer: getAllCustomers){
             for(CustomerAddress address : getAllCustomerAddresses){
                 assertEquals(newCustomer.getName(), customer.getName());
@@ -131,31 +145,46 @@ public class CustomerTestsSteps {
         }
     }
 
-    @Given("^I create (\\d+) (customer|customers) without mandatory fields$")
-    public void iCreateCustomerWithoutMandatoryFields(int customerNumber, String string) throws SQLException {
+    @Given("^I create (\\d+) customers{0,1} without mandatory fields (.*)$")
+    public void iCreateCustomerWithoutMandatoryFields(int customerNumber, String property){
         faker = new Faker();
-        for (int i= 0; i < customerNumber; i++){
-            newCustomerAddress = CustomerAddress.builder()
-                    .address(faker.address().streetName())
-                    .state(faker.address().state())
-                    .build();
-            customerAddressObject.save(dbConnection, newCustomerAddress);
-            newCustomer = Customer.builder()
-                    .age(faker.number().numberBetween(20,90))
-                    .email(faker.internet().emailAddress())
-                    .phone(faker.phoneNumber().cellPhone())
-                    .build();
-            customerObject.save(dbConnection, newCustomer);
+        newCustomer = Customer.builder()
+                .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
+                .age(faker.number().numberBetween(20,90))
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().cellPhone())
+                .is_active(true)
+                .gdpr_set(true)
+                .build();
+        switch(property) {
+            case "name":
+                newCustomer.setName(null);
+                break;
+            case "address_id":
+                newCustomer.setAddress_id(0);
+                break;
         }
+        try {
+            for (int i= 0; i < customerNumber; i++){
+                customerObject.save(dbConnection, newCustomer);
+            }
+        }
+        catch(SQLException sqe){
+            System.out.println("Error Code = " + sqe.getErrorCode());
+            System.out.println("SQL state = " + sqe.getSQLState());
+            System.out.println("Message = " + sqe.getMessage());
 
+            message = sqe.getMessage();
+        }
     }
 
-    @Then("I cannot save the customer")
-    public void iCannotSaveTheCustomer() throws SQLException {
+    @Then("^I cannot save the customer without (.*)$")
+    public void iCannotSaveTheCustomer(String property) throws SQLException {
         List<Customer> getAllCustomers = customerObject.getAll(dbConnection);
         List<CustomerAddress> getAllCustomerAddresses = customerAddressObject.getAll(dbConnection);
         assertEquals(0, getAllCustomers.size());
         assertEquals(0, getAllCustomerAddresses.size());
+        assertTrue(message.contains(property));
 
     }
 }
