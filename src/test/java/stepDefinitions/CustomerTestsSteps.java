@@ -1,4 +1,5 @@
 package stepDefinitions;
+import io.cucumber.java.After;
 import io.cucumber.java.en.*;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.AfterAll;
@@ -42,6 +43,7 @@ public class CustomerTestsSteps {
     }
 
     @BeforeAll(order=2)
+    @After
     public static void deleteData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
