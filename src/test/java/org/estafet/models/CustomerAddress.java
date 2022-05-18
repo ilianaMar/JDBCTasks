@@ -1,4 +1,5 @@
 package org.estafet.models;
+
 import lombok.*;
 
 @Data

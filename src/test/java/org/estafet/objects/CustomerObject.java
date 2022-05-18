@@ -1,4 +1,5 @@
 package org.estafet.objects;
+
 import org.estafet.models.Customer;
 import org.estafet.models.CustomerAddress;
 
@@ -31,7 +32,7 @@ public class CustomerObject implements DAOInterface<Customer> {
     }
 
 
-//    delete - deletes the record from the database
+    //    delete - deletes the record from the database
     public void delete(Connection dbConnection, int id) throws SQLException {
         String query = String.format("DELETE FROM %s WHERE customer_id=?", tableName);
         PreparedStatement ps = dbConnection.prepareStatement(query);
@@ -39,7 +40,7 @@ public class CustomerObject implements DAOInterface<Customer> {
         ps.executeUpdate();
     }
 
-//    deleteAll - deletes all records in the table
+    //    deleteAll - deletes all records in the table
     public void deleteAll(Connection dbConnection) throws SQLException {
         String query = String.format("DELETE FROM %s", tableName);
         PreparedStatement ps = dbConnection.prepareStatement(query);
@@ -47,7 +48,7 @@ public class CustomerObject implements DAOInterface<Customer> {
     }
 
 
-//    getById - get a single record from the table by id
+    //    getById - get a single record from the table by id
     public Customer getById(Connection dbConnection, int id) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE customer_id=?", tableName);
         PreparedStatement ps = dbConnection.prepareStatement(query);
@@ -71,7 +72,7 @@ public class CustomerObject implements DAOInterface<Customer> {
         return customer.build();
     }
 
-    public HashMap<Customer, CustomerAddress> getAllCustomerAddressDataById(Connection dbConnection, int id)  throws SQLException{
+    public HashMap<Customer, CustomerAddress> getAllCustomerAddressDataById(Connection dbConnection, int id) throws SQLException {
         String query = "SELECT customer_id,name, email, phone, age, public.customers.address_id, " +
                 "address, city, province, state, postal_code, country\n" +
                 "FROM public.customers\n" +
@@ -106,7 +107,7 @@ public class CustomerObject implements DAOInterface<Customer> {
         return customerData;
     }
 
-//    getByIds - get a list of records by list of ids
+    //    getByIds - get a list of records by list of ids
     public List<Customer> getByIds(Connection dbConnection, String columnName, List<Integer> ids) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE %s IN (?)", tableName, columnName);
 
@@ -202,7 +203,7 @@ public class CustomerObject implements DAOInterface<Customer> {
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<Integer> ids = new ArrayList<>();
-        while (rs.next()){
+        while (rs.next()) {
             ids.add(rs.getInt("customer_id"));
         }
         return ids;

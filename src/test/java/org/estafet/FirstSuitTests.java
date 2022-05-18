@@ -1,17 +1,21 @@
 package org.estafet;
+
 import org.estafet.models.CustomerAddress;
 import org.estafet.objects.CustomerAddressObject;
 import org.junit.jupiter.api.*;
+
 import java.sql.Connection;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import com.github.javafaker.Faker;
 import org.estafet.objects.CustomerObject;
 import org.estafet.models.Customer;
 import org.estafet.helpers.DbHelper;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,7 +34,7 @@ public class FirstSuitTests {
     private static Connection dbConnection;
 
     @BeforeAll
-    static void  beforeAll() throws SQLException {
+    static void beforeAll() throws SQLException {
         dbConnection = dbHelper.startDbConnection();
         System.out.println("open db connection");
         System.out.println("DB connection is closed = " + dbConnection.isClosed());
@@ -55,14 +59,14 @@ public class FirstSuitTests {
                 .city(faker.address().city())
                 .country(faker.address().country())
                 .state(faker.address().state())
-                .postal_code(faker.number().numberBetween(1000,9000))
+                .postal_code(faker.number().numberBetween(1000, 9000))
                 .build();
         customerAddressObject.save(dbConnection, newCustomerAddress);
         List<CustomerAddress> customerAddresses = customerAddressObject.getAll(dbConnection);
-        CustomerAddress lastCustomerAddress = customerAddresses.get(customerAddresses.size()-1);
+        CustomerAddress lastCustomerAddress = customerAddresses.get(customerAddresses.size() - 1);
         Customer newCustomer = Customer.builder()
-                .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
-                .age(faker.number().numberBetween(20,90))
+                .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()))
+                .age(faker.number().numberBetween(20, 90))
                 .email(faker.internet().emailAddress())
                 .phone(faker.phoneNumber().cellPhone())
                 .is_active(true)
@@ -71,7 +75,7 @@ public class FirstSuitTests {
                 .build();
         customerObject.save(dbConnection, newCustomer);
         List<Customer> customers = customerObject.getAll(dbConnection);
-        Customer lastCustomer = customers.get(customers.size()-1);
+        Customer lastCustomer = customers.get(customers.size() - 1);
         assertEquals(lastCustomer.getName(), newCustomer.getName());
         assertEquals(lastCustomer.getEmail(), newCustomer.getEmail());
         assertEquals(lastCustomer.getAge(), newCustomer.getAge());
@@ -121,7 +125,7 @@ public class FirstSuitTests {
         CustomerAddress firstCustomerAddress = customerAddressObject.getById(dbConnection, 1);
         HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 1);
 
-        for(Customer customer: allCustomersData.keySet()){
+        for (Customer customer : allCustomersData.keySet()) {
             assertEquals(firstCustomer.getCustomer_id(), customer.getCustomer_id());
             assertEquals(firstCustomer.getName(), customer.getName());
             assertEquals(firstCustomer.getPhone(), customer.getPhone());
@@ -147,7 +151,7 @@ public class FirstSuitTests {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
         HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, customer_id);
-        for(Customer customer: allCustomersData.keySet()){
+        for (Customer customer : allCustomersData.keySet()) {
             address_id = allCustomersData.get(customer).getAddress_id();
             customerObject.delete(dbConnection, customer.getCustomer_id());
             customerAddressObject.delete(dbConnection, address_id);
@@ -160,12 +164,12 @@ public class FirstSuitTests {
     @Test
     @DisplayName("Get customer by ids")
     void getCustomerByCustomerIds() throws SQLException {
-        List<Integer> ids =  new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
         ids.add(1);
         ids.add(2);
         CustomerObject customerObject = new CustomerObject();
-        List<Customer> customers= customerObject.getByIds(dbConnection, "customer_id", ids);
-        for (Customer customer : customers){
+        List<Customer> customers = customerObject.getByIds(dbConnection, "customer_id", ids);
+        for (Customer customer : customers) {
             assertEquals(customers.size(), ids.size());
             System.out.println(customer);
         }
@@ -174,12 +178,12 @@ public class FirstSuitTests {
     @Test
     @DisplayName("Get customer address by ids")
     void getCustomerAddressByIds() throws SQLException {
-        List<Integer> ids =  new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
         ids.add(1);
         ids.add(2);
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<CustomerAddress> addresses= customerAddressObject.getByIds(dbConnection, "address_id", ids);
-        for (CustomerAddress address : addresses){
+        List<CustomerAddress> addresses = customerAddressObject.getByIds(dbConnection, "address_id", ids);
+        for (CustomerAddress address : addresses) {
             assertEquals(addresses.size(), ids.size());
             System.out.println(address);
         }
@@ -216,7 +220,7 @@ public class FirstSuitTests {
     @DisplayName("Get random 5 addresses")
     void getRandomAddressesIds() throws SQLException {
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<Integer> randIds =  customerAddressObject.getRandomIds(dbConnection, 5);
+        List<Integer> randIds = customerAddressObject.getRandomIds(dbConnection, 5);
 
         System.out.println(randIds);
     }
@@ -225,7 +229,7 @@ public class FirstSuitTests {
     @DisplayName("Get random 5 customers")
     void getRandomCustomerIds() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<Integer> randIds =  customerObject.getRandomIds(dbConnection, 5);
+        List<Integer> randIds = customerObject.getRandomIds(dbConnection, 5);
 
         System.out.println(randIds);
     }

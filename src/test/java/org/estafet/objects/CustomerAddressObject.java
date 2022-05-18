@@ -1,11 +1,13 @@
 package org.estafet.objects;
+
 import org.estafet.models.CustomerAddress;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CustomerAddressObject implements DAOInterface<CustomerAddress>{
+public class CustomerAddressObject implements DAOInterface<CustomerAddress> {
     private final String tableName = "public.customers_addresses";
 
     public void save(Connection dbConnection, CustomerAddress customerAddress) throws SQLException {
@@ -132,7 +134,7 @@ public class CustomerAddressObject implements DAOInterface<CustomerAddress>{
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<Integer> ids = new ArrayList<>();
-        while (rs.next()){
+        while (rs.next()) {
             ids.add(rs.getInt("address_id"));
         }
         return ids;
