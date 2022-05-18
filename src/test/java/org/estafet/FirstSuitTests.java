@@ -164,7 +164,7 @@ public class FirstSuitTests {
         ids.add(1);
         ids.add(2);
         CustomerObject customerObject = new CustomerObject();
-        List<Customer> customers= customerObject.getByIds(dbConnection, ids);
+        List<Customer> customers= customerObject.getByIds(dbConnection, "customer_id", ids);
         for (Customer customer : customers){
             assertEquals(customers.size(), ids.size());
             System.out.println(customer);
@@ -178,7 +178,7 @@ public class FirstSuitTests {
         ids.add(1);
         ids.add(2);
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<CustomerAddress> addresses= customerAddressObject.getByIds(dbConnection, ids);
+        List<CustomerAddress> addresses= customerAddressObject.getByIds(dbConnection, "address_id", ids);
         for (CustomerAddress address : addresses){
             assertEquals(addresses.size(), ids.size());
             System.out.println(address);

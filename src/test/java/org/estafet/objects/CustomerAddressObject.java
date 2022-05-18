@@ -53,8 +53,8 @@ public class CustomerAddressObject implements DAOInterface<CustomerAddress>{
         return customerAddress.build();
     }
 
-    public List<CustomerAddress> getByIds(Connection dbConnection, List<Integer> ids) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE address_id IN (?)", tableName);
+    public List<CustomerAddress> getByIds(Connection dbConnection, String columnName, List<Integer> ids) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE %s IN (?)", tableName, columnName);
 
         String sqlIN = ids.stream()
                 .map(String::valueOf)

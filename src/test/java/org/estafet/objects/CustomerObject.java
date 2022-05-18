@@ -107,13 +107,14 @@ public class CustomerObject implements DAOInterface<Customer> {
     }
 
 //    getByIds - get a list of records by list of ids
-    public List<Customer> getByIds(Connection dbConnection, List<Integer> ids) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE customer_id IN (?)", tableName);
+    public List<Customer> getByIds(Connection dbConnection, String columnName, List<Integer> ids) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE %s IN (?)", tableName, columnName);
 
         String sqlIN = ids.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
+        System.out.println(query);
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         List<Customer> customers = new ArrayList<>();

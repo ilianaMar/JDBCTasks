@@ -9,7 +9,7 @@ public interface DAOInterface<Type> {
     void delete(Connection dbConnection,int id) throws SQLException;
     void deleteAll(Connection dbConnection) throws SQLException;
     Type getById(Connection dbConnection, int id) throws SQLException;
-    List<?> getByIds(Connection dbConnection, List<Integer> ids) throws SQLException;
+    List<?> getByIds(Connection dbConnection, String columnName, List<Integer> ids) throws SQLException;
     List<?> getAll(Connection dbConnection) throws SQLException;
     int getAllRecordsCount(Connection dbConnection) throws SQLException;
     Type getByRandomId(Connection dbConnection) throws SQLException;

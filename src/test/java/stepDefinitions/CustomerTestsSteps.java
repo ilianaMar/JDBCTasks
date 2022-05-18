@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-
 import com.github.javafaker.Faker;
 import org.estafet.models.Customer;
 import org.estafet.models.CustomerAddress;
@@ -30,10 +29,11 @@ public class CustomerTestsSteps {
     CustomerObject customerObject = new CustomerObject();
     CustomerAddressObject customerAddressObject = new CustomerAddressObject();
     List<CustomerAddress> customerAddresses = null;
+    List<Customer> customers = null;
     CustomerAddress newCustomerAddress;
     Customer newCustomer;
     Faker faker;
-    String message;
+    String message = "";
 
     @BeforeAll(order=1)
     public static void startDBConnection() throws SQLException {
@@ -72,7 +72,6 @@ public class CustomerTestsSteps {
                         .build();
                 customerAddressObject.save(dbConnection, newCustomerAddress);
                 customerAddresses = customerAddressObject.getAll(dbConnection);
-                System.out.println("1111" + customerAddresses);
                 CustomerAddress lastCustomerAddress = customerAddresses.get(i);
                 newCustomer = Customer.builder()
                         .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()) )
@@ -90,12 +89,10 @@ public class CustomerTestsSteps {
             System.out.println("Error Code = " + sqe.getErrorCode());
             System.out.println("SQL state = " + sqe.getSQLState());
             System.out.println("Message = " + sqe.getMessage());
-
-            message = sqe.getMessage();
         }
     }
 
-    @Then("I check that  there are no customers without address")
+    @Then("I check that there are no customers without address")
     public void iCheckThatThereAreNoCustomersWithoutAddress() {
         for(CustomerAddress address : customerAddresses){
             assertTrue(!address.getAddress().isEmpty() && !address.getAddress().isBlank());
@@ -170,10 +167,7 @@ public class CustomerTestsSteps {
             }
         }
         catch(SQLException sqe){
-            System.out.println("Error Code = " + sqe.getErrorCode());
-            System.out.println("SQL state = " + sqe.getSQLState());
             System.out.println("Message = " + sqe.getMessage());
-
             message = sqe.getMessage();
         }
     }
@@ -185,6 +179,60 @@ public class CustomerTestsSteps {
         assertEquals(0, getAllCustomers.size());
         assertEquals(0, getAllCustomerAddresses.size());
         assertTrue(message.contains(property));
+    }
 
+    @When("^I get random (\\d+) customers{0,1}$")
+    public void iGetRandomRandomCustomers(int customerNumber) throws SQLException {
+        List<Integer> randomAddressIds = customerAddressObject.getRandomIds(dbConnection, customerNumber);
+        customers = customerObject.getByIds(dbConnection, "address_id", randomAddressIds);
+    }
+
+    @Then("^I check that (\\d+) customers{0,1} mandatory fields are not empty$")
+    public void iCheckThatAllMandatoryArePopulated(int customerNumber) {
+        assertEquals(customerNumber, customers.size());
+        for(Customer customer : customers){
+            assertTrue(!customer.getName().isEmpty() && !customer.getName().isBlank());
+            assertTrue (customer.getAge() != 0 );
+        }
+    }
+
+    @Given("^I create (\\d+) customer (?:address|addresses) without (.*)$")
+    public void iCreateCustomerAddressesWithoutMandatoryFields(int addressNumber, String property) {
+        faker = new Faker();
+        newCustomerAddress = CustomerAddress.builder()
+                .address(faker.address().streetName())
+                .city(faker.address().city())
+                .country(faker.address().country())
+                .state(faker.address().state())
+                .postal_code(faker.number().numberBetween(1000,9000))
+                .build();
+        switch(property) {
+            case "city":
+                newCustomerAddress.setCity(null);
+                break;
+            case "country":
+                newCustomerAddress.setCountry(null);
+                break;
+            case "postal_code":
+                newCustomerAddress.setPostal_code(0);
+                break;
+        }
+
+        try {
+            for (int i= 0; i < addressNumber; i++){
+                customerAddressObject.save(dbConnection, newCustomerAddress);
+            }
+        }
+        catch(SQLException sqe){
+            System.out.println("Message = " + sqe.getMessage());
+            message = sqe.getMessage();
+        }
+    }
+
+    @And("^I cannot save customer (?:address|addresses) without (.*)$")
+    public void iCannotSaveTheCustomerAddressWithoutMandatoryProperties(String property) throws SQLException {
+        List<CustomerAddress> getAllCustomerAddresses = customerAddressObject.getAll(dbConnection);
+        assertEquals(0, getAllCustomerAddresses.size());
+        assertTrue(message.contains(property));
     }
 }
