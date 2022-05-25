@@ -6,13 +6,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface DAOInterface<Type> {
-    void save(Connection dbConnection, Type type) throws SQLException, IOException;
+    int save(Connection dbConnection, Type type) throws SQLException, IOException;
 
     void delete(Connection dbConnection, int id) throws SQLException;
 
     void deleteAll(Connection dbConnection) throws SQLException;
 
-    Type getById(Connection dbConnection, int id) throws SQLException;
+    List<?> getById(Connection dbConnection, int id) throws SQLException;
 
     List<?> getByIds(Connection dbConnection, String columnName, List<Integer> ids) throws SQLException;
 
@@ -20,7 +20,7 @@ public interface DAOInterface<Type> {
 
     int getAllRecordsCount(Connection dbConnection) throws SQLException;
 
-    Type getByRandomId(Connection dbConnection) throws SQLException;
+    List<?> getByRandomId(Connection dbConnection) throws SQLException;
 
     List<?> getRandomIds(Connection dbConnection, int count) throws SQLException;
 }

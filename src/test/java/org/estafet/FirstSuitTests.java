@@ -14,18 +14,18 @@ import java.util.List;
 import com.github.javafaker.Faker;
 import org.estafet.objects.CustomerObject;
 import org.estafet.models.Customer;
-import org.estafet.helpers.DbHelper;
+import org.estafet.helpers.DbConnectionHelper;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("First test suite")
 public class FirstSuitTests {
-    private static DbHelper dbHelper;
+    private static DbConnectionHelper dbHelper;
 
     static {
         try {
-            dbHelper = new DbHelper(DbHelper.postgresConfData);
+            dbHelper = new DbConnectionHelper(DbConnectionHelper.postgresConfData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,22 +121,22 @@ public class FirstSuitTests {
     void getSpecificCustomerData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        Customer firstCustomer = customerObject.getById(dbConnection, 1);
-        CustomerAddress firstCustomerAddress = customerAddressObject.getById(dbConnection, 1);
+        List<Customer> firstCustomer = customerObject.getById(dbConnection, 1);
+        List<CustomerAddress> firstCustomerAddress = customerAddressObject.getById(dbConnection, 1);
         HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 1);
 
         for (Customer customer : allCustomersData.keySet()) {
-            assertEquals(firstCustomer.getCustomer_id(), customer.getCustomer_id());
-            assertEquals(firstCustomer.getName(), customer.getName());
-            assertEquals(firstCustomer.getPhone(), customer.getPhone());
-            assertEquals(firstCustomer.getEmail(), customer.getEmail());
-            assertEquals(firstCustomer.getAge(), customer.getAge());
-            assertEquals(firstCustomerAddress.getAddress(), allCustomersData.get(customer).getAddress());
-            assertEquals(firstCustomerAddress.getAddress_id(), allCustomersData.get(customer).getAddress_id());
-            assertEquals(firstCustomerAddress.getCity(), allCustomersData.get(customer).getCity());
-            assertEquals(firstCustomerAddress.getCountry(), allCustomersData.get(customer).getCountry());
-            assertEquals(firstCustomerAddress.getProvince(), allCustomersData.get(customer).getProvince());
-            assertEquals(firstCustomerAddress.getState(), allCustomersData.get(customer).getState());
+            assertEquals(firstCustomer.get(0).getCustomer_id(), customer.getCustomer_id());
+            assertEquals(firstCustomer.get(0).getName(), customer.getName());
+            assertEquals(firstCustomer.get(0).getPhone(), customer.getPhone());
+            assertEquals(firstCustomer.get(0).getEmail(), customer.getEmail());
+            assertEquals(firstCustomer.get(0).getAge(), customer.getAge());
+            assertEquals(firstCustomerAddress.get(0).getAddress(), allCustomersData.get(customer).getAddress());
+            assertEquals(firstCustomerAddress.get(0).getAddress_id(), allCustomersData.get(customer).getAddress_id());
+            assertEquals(firstCustomerAddress.get(0).getCity(), allCustomersData.get(customer).getCity());
+            assertEquals(firstCustomerAddress.get(0).getCountry(), allCustomersData.get(customer).getCountry());
+            assertEquals(firstCustomerAddress.get(0).getProvince(), allCustomersData.get(customer).getProvince());
+            assertEquals(firstCustomerAddress.get(0).getState(), allCustomersData.get(customer).getState());
 //            System.out.println(customer);
 //            System.out.println(allCustomersData.get(customer));
         }
@@ -157,8 +157,8 @@ public class FirstSuitTests {
             customerAddressObject.delete(dbConnection, address_id);
 
         }
-        assertEquals(customerObject.getById(dbConnection, customer_id).getCustomer_id(), 0);
-        assertEquals(customerAddressObject.getById(dbConnection, address_id).getAddress_id(), 0);
+        assertEquals(customerObject.getById(dbConnection, customer_id).get(0).getCustomer_id(), 0);
+        assertEquals(customerAddressObject.getById(dbConnection, address_id).get(0).getAddress_id(), 0);
     }
 
     @Test
@@ -202,7 +202,7 @@ public class FirstSuitTests {
     @DisplayName("Get random customer")
     void getRandomCustomer() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        Customer randomCustomer = customerObject.getByRandomId(dbConnection);
+        List<Customer> randomCustomer = customerObject.getByRandomId(dbConnection);
 
         System.out.println(randomCustomer);
     }
@@ -211,7 +211,7 @@ public class FirstSuitTests {
     @DisplayName("Get random address")
     void getRandomAddress() throws SQLException {
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        CustomerAddress randomAddress = customerAddressObject.getByRandomId(dbConnection);
+        List<CustomerAddress> randomAddress = customerAddressObject.getByRandomId(dbConnection);
 
         System.out.println(randomAddress);
     }

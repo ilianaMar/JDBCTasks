@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.estafet.helpers.DatabaseDriver;
 
 
-public class CustomerObject implements DAOInterface<Customer> {
+public class CustomerObject extends DatabaseDriver implements DAOInterface<Customer> {
     private final String tableName = "public.customers";
 
-    public void save(Connection dbConnection, Customer customer) throws SQLException {
+    public int save(Connection dbConnection, Customer customer) throws SQLException {
         String query
                 = String.format("INSERT INTO %s(name, email, phone, age, gdpr_set, is_active, address_id)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)", tableName);
@@ -28,48 +29,28 @@ public class CustomerObject implements DAOInterface<Customer> {
         ps.setBoolean(5, customer.isGdpr_set());
         ps.setBoolean(6, customer.is_active());
         ps.setInt(7, customer.getAddress_id());
-        ps.executeUpdate();
+        System.out.println("33333 " + ps);
+        return insertDbTableRowData(dbConnection, ps);
     }
-
 
     //    delete - deletes the record from the database
     public void delete(Connection dbConnection, int id) throws SQLException {
-        String query = String.format("DELETE FROM %s WHERE customer_id=?", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ps.setInt(1, id);
-        ps.executeUpdate();
+        String query = String.format("DELETE FROM %s WHERE customer_id=%s", tableName, id);
+        deleteTableData(dbConnection, query);
     }
 
     //    deleteAll - deletes all records in the table
     public void deleteAll(Connection dbConnection) throws SQLException {
         String query = String.format("DELETE FROM %s", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ps.executeUpdate();
+        deleteTableData(dbConnection, query);
     }
 
 
     //    getById - get a single record from the table by id
-    public Customer getById(Connection dbConnection, int id) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE customer_id=?", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ps.setInt(1, id);
-        ResultSet rs = ps.executeQuery();
-        Customer.CustomerBuilder customer = Customer.builder();
-        while (rs.next()) {
-            customer.customer_id(rs.getInt("customer_id"))
-                    .name(rs.getString("name"))
-                    .email(rs.getString("email"))
-                    .phone(rs.getString("phone"))
-                    .age(rs.getInt("age"))
-                    .gdpr_set(rs.getBoolean("gdpr_set"))
-                    .is_active(rs.getBoolean("is_active"))
-                    .created_time(rs.getTimestamp("created_time"))
-                    .updated_time(rs.getTimestamp("updated_time"))
-                    .reason_for_deactivation(rs.getString("reason_for_deactivation"))
-                    .notes(rs.getString("notes"))
-                    .address_id(rs.getInt("address_id"));
-        }
-        return customer.build();
+    public List<Customer> getById(Connection dbConnection, int id) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE customer_id=%s", tableName, id);
+        System.out.println("executing query: " + query);
+        return getDbTableData(dbConnection, query, Customer.class);
     }
 
     public HashMap<Customer, CustomerAddress> getAllCustomerAddressDataById(Connection dbConnection, int id) throws SQLException {
@@ -115,54 +96,15 @@ public class CustomerObject implements DAOInterface<Customer> {
                 .map(String::valueOf)
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
-        System.out.println(query);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        List<Customer> customers = new ArrayList<>();
-        while (rs.next()) {
-            Customer customer = Customer.builder()
-                    .customer_id(rs.getInt("customer_id"))
-                    .name(rs.getString("name"))
-                    .email(rs.getString("email"))
-                    .phone(rs.getString("phone"))
-                    .age(rs.getInt("age"))
-                    .gdpr_set(rs.getBoolean("gdpr_set"))
-                    .is_active(rs.getBoolean("is_active"))
-                    .created_time(rs.getTimestamp("created_time"))
-                    .updated_time(rs.getTimestamp("updated_time"))
-                    .reason_for_deactivation(rs.getString("reason_for_deactivation"))
-                    .notes(rs.getString("notes"))
-                    .address_id(rs.getInt("address_id"))
-                    .build();
-            customers.add(customer);
-        }
-        return customers;
+
+        System.out.println("executing query: " + query);
+        return getDbTableData(dbConnection, query, Customer.class);
     }
 
     public List<Customer> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        List<Customer> customers = new ArrayList<>();
-
-        while (rs.next()) {
-            Customer customer = Customer.builder()
-                    .customer_id(rs.getInt("customer_id"))
-                    .name(rs.getString("name"))
-                    .email(rs.getString("email"))
-                    .phone(rs.getString("phone"))
-                    .age(rs.getInt("age"))
-                    .gdpr_set(rs.getBoolean("gdpr_set"))
-                    .is_active(rs.getBoolean("is_active"))
-                    .created_time(rs.getTimestamp("created_time"))
-                    .updated_time(rs.getTimestamp("updated_time"))
-                    .reason_for_deactivation(rs.getString("reason_for_deactivation"))
-                    .notes(rs.getString("notes"))
-                    .address_id(rs.getInt("address_id"))
-                    .build();
-            customers.add(customer);
-        }
-        return customers;
+        System.out.println("executing query: " + query);
+        return getDbTableData(dbConnection, query, Customer.class);
     }
 
     public int getAllRecordsCount(Connection dbConnection) throws SQLException {
@@ -176,26 +118,10 @@ public class CustomerObject implements DAOInterface<Customer> {
         return count;
     }
 
-    public Customer getByRandomId(Connection dbConnection) throws SQLException {
+    public List<Customer> getByRandomId(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        Customer.CustomerBuilder customer = Customer.builder();
-        while (rs.next()) {
-            customer.customer_id(rs.getInt("customer_id"))
-                    .name(rs.getString("name"))
-                    .email(rs.getString("email"))
-                    .phone(rs.getString("phone"))
-                    .age(rs.getInt("age"))
-                    .gdpr_set(rs.getBoolean("gdpr_set"))
-                    .is_active(rs.getBoolean("is_active"))
-                    .created_time(rs.getTimestamp("created_time"))
-                    .updated_time(rs.getTimestamp("updated_time"))
-                    .reason_for_deactivation(rs.getString("reason_for_deactivation"))
-                    .notes(rs.getString("notes"))
-                    .address_id(rs.getInt("address_id"));
-        }
-        return customer.build();
+        System.out.println("executing query: " + query);
+        return getDbTableData(dbConnection, query, Customer.class);
     }
 
     public List<Integer> getRandomIds(Connection dbConnection, int count) throws SQLException {

@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Customer {
     String name, email, reason_for_deactivation, notes, phone;
     int customer_id, age, address_id;

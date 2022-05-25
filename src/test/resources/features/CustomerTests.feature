@@ -30,10 +30,10 @@ Feature: Customer CRUD tests
     When I create 1 customer address without postal_code
     Then I cannot save customer address without postal_code
 
-
-  Scenario: Check that random customers orders have required fields
-    Given I create 5 customers with all mandatory fields
-    And I create 5 orders for created customers
-    When I get random 3 customers
-    And I get orders for selected users
-    Then i verify that all mandatory fields are not null
+#
+#  Scenario: Check that random customers orders have required fields
+#    Given I create 5 customers with all mandatory fields
+#    And I create 5 orders for created customers
+#    When I get random 3 customers
+#    And I get orders for selected users
+#    Then i verify that all mandatory fields are not null
