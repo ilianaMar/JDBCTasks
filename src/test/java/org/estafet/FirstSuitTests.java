@@ -69,7 +69,7 @@ public class FirstSuitTests {
                 .age(faker.number().numberBetween(20, 90))
                 .email(faker.internet().emailAddress())
                 .phone(faker.phoneNumber().cellPhone())
-                .is_active(true)
+                .active(true)
                 .gdpr_set(true)
                 .address_id(lastCustomerAddress.getAddress_id())
                 .build();
@@ -85,7 +85,7 @@ public class FirstSuitTests {
         assertNull(lastCustomer.getReason_for_deactivation());
         assertNull(lastCustomer.getUpdated_time());
         assertNull(lastCustomer.getNotes());
-        assertTrue(lastCustomer.is_active());
+        assertTrue(lastCustomer.isActive());
         assertTrue(lastCustomer.isGdpr_set());
     }
 
@@ -112,7 +112,7 @@ public class FirstSuitTests {
         assertEquals("iliana@test.com", firstCustomer.getEmail());
         assertEquals("123444", firstCustomer.getPhone());
         assertEquals(38, firstCustomer.getAge());
-        assertTrue(firstCustomer.is_active());
+        assertTrue(firstCustomer.isActive());
         assertTrue(firstCustomer.isGdpr_set());
     }
 

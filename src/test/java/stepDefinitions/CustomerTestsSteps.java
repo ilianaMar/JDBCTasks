@@ -82,7 +82,7 @@ public class CustomerTestsSteps {
                         .age(faker.number().numberBetween(20, 90))
                         .email(faker.internet().emailAddress())
                         .phone(faker.phoneNumber().cellPhone())
-                        .is_active(true)
+                        .active(true)
                         .gdpr_set(true)
                         .address_id(lastAddressId)
                         .build();
@@ -131,7 +131,7 @@ public class CustomerTestsSteps {
                 assertEquals(newCustomer.getPhone(), customer.getPhone());
                 assertEquals(newCustomer.getEmail(), customer.getEmail());
                 assertEquals(newCustomer.getAge(), customer.getAge());
-//                assertEquals(newCustomer.is_active(), customer.is_active());
+                assertEquals(newCustomer.isActive(), customer.isActive());
                 assertEquals(newCustomer.isGdpr_set(), customer.isGdpr_set());
                 assertNotNull(customer.getCreated_time());
                 assertNull(customer.getUpdated_time());
@@ -153,7 +153,7 @@ public class CustomerTestsSteps {
                 .age(faker.number().numberBetween(20, 90))
                 .email(faker.internet().emailAddress())
                 .phone(faker.phoneNumber().cellPhone())
-                .is_active(true)
+                .active(true)
                 .gdpr_set(true)
                 .build();
         switch (property) {

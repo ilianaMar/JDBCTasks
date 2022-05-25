@@ -19,7 +19,7 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
 
     public int save(Connection dbConnection, Customer customer) throws SQLException {
         String query
-                = String.format("INSERT INTO %s(name, email, phone, age, gdpr_set, is_active, address_id)" +
+                = String.format("INSERT INTO %s(name, email, phone, age, gdpr_set, active, address_id)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)", tableName);
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ps.setString(1, customer.getName());
@@ -27,7 +27,7 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
         ps.setString(3, customer.getPhone());
         ps.setInt(4, customer.getAge());
         ps.setBoolean(5, customer.isGdpr_set());
-        ps.setBoolean(6, customer.is_active());
+        ps.setBoolean(6, customer.isActive());
         ps.setInt(7, customer.getAddress_id());
         System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);

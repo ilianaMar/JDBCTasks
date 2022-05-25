@@ -1,6 +1,7 @@
 package org.estafet.helpers;
 
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
@@ -14,7 +15,7 @@ public class DatabaseDriver {
     protected <T> List<T> getDbTableData(Connection connection, String sql, Class<T>  classType) throws SQLException{
         List entityRows;
         QueryRunner queryRunner = new QueryRunner();
-        entityRows = (List) queryRunner.query(connection, sql, new BeanListHandler(classType));
+        entityRows = queryRunner.query(connection, sql, new BeanListHandler<>(classType));
         return entityRows;
     }
 
