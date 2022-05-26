@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +25,9 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
         ps.setString(2, customer.getEmail());
         ps.setString(3, customer.getPhone());
         ps.setInt(4, customer.getAge());
-        ps.setBoolean(5, customer.isGdpr_set());
+        ps.setBoolean(5, customer.isGdprSet());
         ps.setBoolean(6, customer.isActive());
-        ps.setInt(7, customer.getAddress_id());
+        ps.setInt(7, customer.getAddressId());
         System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);
     }
@@ -50,16 +49,16 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
     public List<Customer> getById(Connection dbConnection, int id) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE customer_id=%s", tableName, id);
         System.out.println("executing query: " + query);
-        return getDbTableData(dbConnection, query, Customer.class);
+        return getDbResultSet(dbConnection, query, Customer.class);
     }
 
     public HashMap<Customer, CustomerAddress> getAllCustomerAddressDataById(Connection dbConnection, int id) throws SQLException {
-        String query = "SELECT customer_id,name, email, phone, age, public.customers.address_id, " +
+        String query = String.format("SELECT customer_id,name, email, phone, age, public.customers.address_id, " +
                 "address, city, province, state, postal_code, country\n" +
                 "FROM public.customers\n" +
                 "INNER JOIN public.customers_addresses\n" +
                 "ON public.customers.address_id = public.customers_addresses.address_id\n" +
-                "WHERE customer_id=?";
+                "WHERE customer_id=?");
         PreparedStatement ps = dbConnection.prepareStatement(query);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
@@ -67,7 +66,7 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
 
         while (rs.next()) {
             Customer customer = Customer.builder()
-                    .customer_id(rs.getInt("customer_id"))
+                    .customerId(rs.getInt("customer_id"))
                     .name(rs.getString("name"))
                     .email(rs.getString("email"))
                     .age(rs.getInt("age"))
@@ -75,13 +74,13 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
                     .build();
 
             CustomerAddress customerAddress = CustomerAddress.builder()
-                    .address_id(rs.getInt("address_id"))
+                    .addressId(rs.getInt("address_id"))
                     .country(rs.getString("country"))
                     .city(rs.getString("city"))
                     .province(rs.getString("province"))
                     .state(rs.getString("state"))
                     .address(rs.getString("address"))
-                    .postal_code(rs.getInt("postal_code"))
+                    .postalCode(rs.getInt("postal_code"))
                     .build();
             customerData.put(customer, customerAddress);
         }
@@ -98,13 +97,13 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
         query = query.replace("(?)", sqlIN);
 
         System.out.println("executing query: " + query);
-        return getDbTableData(dbConnection, query, Customer.class);
+        return getDbResultSet(dbConnection, query, Customer.class);
     }
 
     public List<Customer> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", tableName);
         System.out.println("executing query: " + query);
-        return getDbTableData(dbConnection, query, Customer.class);
+        return getDbResultSet(dbConnection, query, Customer.class);
     }
 
     public int getAllRecordsCount(Connection dbConnection) throws SQLException {
@@ -121,17 +120,11 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
     public List<Customer> getByRandomId(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", tableName);
         System.out.println("executing query: " + query);
-        return getDbTableData(dbConnection, query, Customer.class);
+        return getDbResultSet(dbConnection, query, Customer.class);
     }
 
-    public List<Integer> getRandomIds(Connection dbConnection, int count) throws SQLException {
+    public List<Customer> getRandomIds(Connection dbConnection, int count) throws SQLException {
         String query = String.format("SELECT customer_id FROM %s ORDER BY random() LIMIT %s", tableName, count);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        List<Integer> ids = new ArrayList<>();
-        while (rs.next()) {
-            ids.add(rs.getInt("customer_id"));
-        }
-        return ids;
+        return getDbResultSet(dbConnection, query, Customer.class);
     }
 }

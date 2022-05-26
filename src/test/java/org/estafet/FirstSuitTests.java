@@ -59,7 +59,7 @@ public class FirstSuitTests {
                 .city(faker.address().city())
                 .country(faker.address().country())
                 .state(faker.address().state())
-                .postal_code(faker.number().numberBetween(1000, 9000))
+                .postalCode(faker.number().numberBetween(1000, 9000))
                 .build();
         customerAddressObject.save(dbConnection, newCustomerAddress);
         List<CustomerAddress> customerAddresses = customerAddressObject.getAll(dbConnection);
@@ -70,8 +70,8 @@ public class FirstSuitTests {
                 .email(faker.internet().emailAddress())
                 .phone(faker.phoneNumber().cellPhone())
                 .active(true)
-                .gdpr_set(true)
-                .address_id(lastCustomerAddress.getAddress_id())
+                .gdprSet(true)
+                .addressId(lastCustomerAddress.getAddressId())
                 .build();
         customerObject.save(dbConnection, newCustomer);
         List<Customer> customers = customerObject.getAll(dbConnection);
@@ -80,13 +80,13 @@ public class FirstSuitTests {
         assertEquals(lastCustomer.getEmail(), newCustomer.getEmail());
         assertEquals(lastCustomer.getAge(), newCustomer.getAge());
         assertEquals(lastCustomer.getPhone(), newCustomer.getPhone());
-        assertEquals(lastCustomer.getAddress_id(), lastCustomerAddress.getAddress_id());
-        assertNotNull(lastCustomer.getCreated_time());
-        assertNull(lastCustomer.getReason_for_deactivation());
-        assertNull(lastCustomer.getUpdated_time());
+        assertEquals(lastCustomer.getAddressId(), lastCustomerAddress.getAddressId());
+        assertNotNull(lastCustomer.getCreatedTime());
+        assertNull(lastCustomer.getReasonForDeactivation());
+        assertNull(lastCustomer.getUpdatedTime());
         assertNull(lastCustomer.getNotes());
         assertTrue(lastCustomer.isActive());
-        assertTrue(lastCustomer.isGdpr_set());
+        assertTrue(lastCustomer.isGdprSet());
     }
 
     @Test
@@ -107,13 +107,13 @@ public class FirstSuitTests {
         List<Customer> customers = customerObject.getAll(dbConnection);
         Customer firstCustomer = customers.get(0);
         System.out.println(firstCustomer);
-        assertEquals(1, firstCustomer.getCustomer_id());
+        assertEquals(1, firstCustomer.getCustomerId());
         assertEquals("iliana", firstCustomer.getName());
         assertEquals("iliana@test.com", firstCustomer.getEmail());
         assertEquals("123444", firstCustomer.getPhone());
         assertEquals(38, firstCustomer.getAge());
         assertTrue(firstCustomer.isActive());
-        assertTrue(firstCustomer.isGdpr_set());
+        assertTrue(firstCustomer.isGdprSet());
     }
 
     @Test
@@ -121,18 +121,18 @@ public class FirstSuitTests {
     void getSpecificCustomerData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<Customer> firstCustomer = customerObject.getById(dbConnection, 1);
-        List<CustomerAddress> firstCustomerAddress = customerAddressObject.getById(dbConnection, 1);
-        HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 1);
+        List<Customer> firstCustomer = customerObject.getById(dbConnection, 391);
+        List<CustomerAddress> firstCustomerAddress = customerAddressObject.getById(dbConnection, 403);
+        HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 391);
 
         for (Customer customer : allCustomersData.keySet()) {
-            assertEquals(firstCustomer.get(0).getCustomer_id(), customer.getCustomer_id());
+            assertEquals(firstCustomer.get(0).getCustomerId(), customer.getCustomerId());
             assertEquals(firstCustomer.get(0).getName(), customer.getName());
             assertEquals(firstCustomer.get(0).getPhone(), customer.getPhone());
             assertEquals(firstCustomer.get(0).getEmail(), customer.getEmail());
             assertEquals(firstCustomer.get(0).getAge(), customer.getAge());
             assertEquals(firstCustomerAddress.get(0).getAddress(), allCustomersData.get(customer).getAddress());
-            assertEquals(firstCustomerAddress.get(0).getAddress_id(), allCustomersData.get(customer).getAddress_id());
+            assertEquals(firstCustomerAddress.get(0).getAddressId(), allCustomersData.get(customer).getAddressId());
             assertEquals(firstCustomerAddress.get(0).getCity(), allCustomersData.get(customer).getCity());
             assertEquals(firstCustomerAddress.get(0).getCountry(), allCustomersData.get(customer).getCountry());
             assertEquals(firstCustomerAddress.get(0).getProvince(), allCustomersData.get(customer).getProvince());
@@ -152,13 +152,13 @@ public class FirstSuitTests {
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
         HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, customer_id);
         for (Customer customer : allCustomersData.keySet()) {
-            address_id = allCustomersData.get(customer).getAddress_id();
-            customerObject.delete(dbConnection, customer.getCustomer_id());
+            address_id = allCustomersData.get(customer).getAddressId();
+            customerObject.delete(dbConnection, customer.getCustomerId());
             customerAddressObject.delete(dbConnection, address_id);
 
         }
-        assertEquals(customerObject.getById(dbConnection, customer_id).get(0).getCustomer_id(), 0);
-        assertEquals(customerAddressObject.getById(dbConnection, address_id).get(0).getAddress_id(), 0);
+        assertEquals(customerObject.getById(dbConnection, customer_id).get(0).getCustomerId(), 0);
+        assertEquals(customerAddressObject.getById(dbConnection, address_id).get(0).getAddressId(), 0);
     }
 
     @Test
@@ -220,17 +220,19 @@ public class FirstSuitTests {
     @DisplayName("Get random 5 addresses")
     void getRandomAddressesIds() throws SQLException {
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<Integer> randIds = customerAddressObject.getRandomIds(dbConnection, 5);
-
-        System.out.println(randIds);
+        List<CustomerAddress> randIds = customerAddressObject.getRandomIds(dbConnection, 5);
+        for (CustomerAddress address : randIds){
+            System.out.println(address.getAddressId());
+        }
     }
 
     @Test
     @DisplayName("Get random 5 customers")
     void getRandomCustomerIds() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
-        List<Integer> randIds = customerObject.getRandomIds(dbConnection, 5);
-
-        System.out.println(randIds);
+        List<Customer> randIds = customerObject.getRandomIds(dbConnection, 5);
+        for (Customer customer : randIds){
+            System.out.println(customer.getCustomerId());
+        }
     }
 }

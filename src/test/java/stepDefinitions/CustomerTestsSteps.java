@@ -73,7 +73,7 @@ public class CustomerTestsSteps {
                         .city(faker.address().city())
                         .country(faker.address().country())
                         .state(faker.address().state())
-                        .postal_code(faker.number().numberBetween(1000, 9000))
+                        .postalCode(faker.number().numberBetween(1000, 9000))
                         .build();
                 int lastAddressId = customerAddressObject.save(dbConnection, newCustomerAddress);
                 customerAddresses = customerAddressObject.getAll(dbConnection);
@@ -83,8 +83,8 @@ public class CustomerTestsSteps {
                         .email(faker.internet().emailAddress())
                         .phone(faker.phoneNumber().cellPhone())
                         .active(true)
-                        .gdpr_set(true)
-                        .address_id(lastAddressId)
+                        .gdprSet(true)
+                        .addressId(lastAddressId)
                         .build();
                 customerObject.save(dbConnection, newCustomer);
             }
@@ -132,15 +132,15 @@ public class CustomerTestsSteps {
                 assertEquals(newCustomer.getEmail(), customer.getEmail());
                 assertEquals(newCustomer.getAge(), customer.getAge());
                 assertEquals(newCustomer.isActive(), customer.isActive());
-                assertEquals(newCustomer.isGdpr_set(), customer.isGdpr_set());
-                assertNotNull(customer.getCreated_time());
-                assertNull(customer.getUpdated_time());
-                assertEquals(customer.getAddress_id(), address.getAddress_id());
+                assertEquals(newCustomer.isGdprSet(), customer.isGdprSet());
+                assertNotNull(customer.getCreatedTime());
+                assertNull(customer.getUpdatedTime());
+                assertEquals(customer.getAddressId(), address.getAddressId());
                 assertEquals(newCustomerAddress.getAddress(), address.getAddress());
                 assertEquals(newCustomerAddress.getCountry(), address.getCountry());
                 assertEquals(newCustomerAddress.getCity(), address.getCity());
                 assertEquals(newCustomerAddress.getState(), address.getState());
-                assertEquals(newCustomerAddress.getPostal_code(), address.getPostal_code());
+                assertEquals(newCustomerAddress.getPostalCode(), address.getPostalCode());
             }
         }
     }
@@ -154,18 +154,19 @@ public class CustomerTestsSteps {
                 .email(faker.internet().emailAddress())
                 .phone(faker.phoneNumber().cellPhone())
                 .active(true)
-                .gdpr_set(true)
+                .gdprSet(true)
                 .build();
         switch (property) {
             case "name":
                 newCustomer.setName(null);
                 break;
             case "address_id":
-                newCustomer.setAddress_id(0);
+                newCustomer.setAddressId(0);
                 break;
         }
         try {
             for (int i = 0; i < customerNumber; i++) {
+                System.out.println(newCustomer);
                 customerObject.save(dbConnection, newCustomer);
             }
         } catch (SQLException sqe) {
@@ -185,8 +186,13 @@ public class CustomerTestsSteps {
 
     @When("^I get random (\\d+) customers{0,1}$")
     public void iGetRandomRandomCustomers(int customerNumber) throws SQLException {
-        List<Integer> randomAddressIds = customerAddressObject.getRandomIds(dbConnection, customerNumber);
-        customers = customerObject.getByIds(dbConnection, "address_id", randomAddressIds);
+        List<CustomerAddress> randomAddressIds = customerAddressObject.getRandomIds(dbConnection, customerNumber);
+        List<Integer> listIds= new ArrayList<>();
+        for (CustomerAddress address : randomAddressIds) {
+            System.out.println(address.getAddressId());
+            listIds.add(address.getAddressId());
+            customers = customerObject.getByIds(dbConnection, "address_id", listIds);
+        }
     }
 
     @Then("^I check that (\\d+) customers{0,1} mandatory fields are not empty$")
@@ -206,7 +212,7 @@ public class CustomerTestsSteps {
                 .city(faker.address().city())
                 .country(faker.address().country())
                 .state(faker.address().state())
-                .postal_code(faker.number().numberBetween(1000, 9000))
+                .postalCode(faker.number().numberBetween(1000, 9000))
                 .build();
         switch (property) {
             case "city":
@@ -216,7 +222,7 @@ public class CustomerTestsSteps {
                 newCustomerAddress.setCountry(null);
                 break;
             case "postal_code":
-                newCustomerAddress.setPostal_code(0);
+                newCustomerAddress.setPostalCode(0);
                 break;
         }
 
