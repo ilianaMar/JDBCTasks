@@ -30,10 +30,21 @@ Feature: Customer CRUD tests
     When I create 1 customer address without postal_code
     Then I cannot save customer address without postal_code
 
-#
-#  Scenario: Check that random customers orders have required fields
-#    Given I create 5 customers with all mandatory fields
-#    And I create 5 orders for created customers
-#    When I get random 3 customers
-#    And I get orders for selected users
-#    Then i verify that all mandatory fields are not null
+  Scenario: User can save new product
+    Given I create 2 products with all mandatory fields
+    When  I check that 2 products is created correctly
+    Then I check that no orders are related with 2 products
+
+  Scenario: User cannot save new product without mandatory fields
+    Given I create 1 product without product_name
+    And I cannot save 1 product without product_name
+    When I create 1 product without product_type
+    Then I cannot save 1 product without product_type
+    When I create 1 product without available_quantity
+    Then I cannot save 1 product without available_quantity
+    When I create 1 product without price_without_vat
+    Then I cannot save 1 product without price_without_vat
+    When I create 1 product without warehouse
+    Then I cannot save 1 product without warehouse
+    When I create 1 product without supplier_id
+    Then I cannot save 1 product without supplier_id

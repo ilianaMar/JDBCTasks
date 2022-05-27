@@ -44,7 +44,6 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
         deleteTableData(dbConnection, query);
     }
 
-
     //    getById - get a single record from the table by id
     public List<Customer> getById(Connection dbConnection, int id) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE customer_id=%s", tableName, id);

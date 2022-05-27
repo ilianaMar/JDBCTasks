@@ -1,6 +1,7 @@
 package stepDefinitions;
 
 import io.cucumber.java.After;
+import io.cucumber.java.bs.A;
 import io.cucumber.java.en.*;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.AfterAll;
@@ -14,8 +15,10 @@ import java.util.*;
 import com.github.javafaker.Faker;
 import org.estafet.models.Customer;
 import org.estafet.models.CustomerAddress;
+import org.estafet.models.Product;
 import org.estafet.objects.CustomerAddressObject;
 import org.estafet.objects.CustomerObject;
+import org.estafet.objects.ProductObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,10 +36,14 @@ public class CustomerTestsSteps {
     private static Connection dbConnection;
     CustomerObject customerObject = new CustomerObject();
     CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+    ProductObject productObject = new ProductObject();
     List<CustomerAddress> customerAddresses = null;
     List<Customer> customers = null;
+    List<Product> products = null;
+    ArrayList<Integer> productIds = new ArrayList<>();
     CustomerAddress newCustomerAddress;
     Customer newCustomer;
+    List<Product> newProducts = new ArrayList<>();
     Faker faker;
     String message = "";
 
@@ -48,12 +55,14 @@ public class CustomerTestsSteps {
     }
 
     @BeforeAll(order = 2)
-    @After
+//    @After
     public static void deleteData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
+        ProductObject productObject = new ProductObject();
         customerObject.deleteAll(dbConnection);
         customerAddressObject.deleteAll(dbConnection);
+        productObject.deleteAll(dbConnection);
     }
 
     @AfterAll
@@ -187,7 +196,7 @@ public class CustomerTestsSteps {
     @When("^I get random (\\d+) customers{0,1}$")
     public void iGetRandomRandomCustomers(int customerNumber) throws SQLException {
         List<CustomerAddress> randomAddressIds = customerAddressObject.getRandomIds(dbConnection, customerNumber);
-        List<Integer> listIds= new ArrayList<>();
+        List<Integer> listIds = new ArrayList<>();
         for (CustomerAddress address : randomAddressIds) {
             System.out.println(address.getAddressId());
             listIds.add(address.getAddressId());
@@ -243,15 +252,106 @@ public class CustomerTestsSteps {
         assertTrue(message.contains(property));
     }
 
-    @And("^I create (\\d+) orders{0,1} for created customers{0,1}$")
-    public void iCreateOrdersForCreatedCustomers(int arg0) {
+    @Given("^I create (\\d+) products{0,1} with all mandatory fields$")
+    public void iCreateProducts(int productNumber) {
+        faker = new Faker();
+        try {
+            for (int i = 0; i < productNumber; i++) {
+                newProducts.add(Product.builder()
+                        .productName(faker.commerce().productName())
+                        .productType(String.format("product%s", faker.number().numberBetween(10, 100)))
+                        .availableQuantity(faker.number().numberBetween(10, 100))
+                        .priceWithoutVat(Float.parseFloat(faker.commerce().price()))
+                        .inStock(true)
+                        .warehouse(faker.number().numberBetween(10, 100))
+                        .supplierId(faker.number().numberBetween(1, 24))
+                        .build());
+                int productId = productObject.save(dbConnection, newProducts.get(i));
+                productIds.add(productId);
+            }
+        } catch (SQLException sqe) {
+            System.out.println("Error Code = " + sqe.getErrorCode());
+            System.out.println("SQL state = " + sqe.getSQLState());
+            System.out.println("Message = " + sqe.getMessage());
+        }
     }
 
-    @And("I get orders for selected users")
-    public void iGetOrdersForSelectedUsers() {
+    @When("^I check that (\\d+) products{0,1} is created correctly$")
+    public void iCheckThatProductIsCreatedCorrectly(int productNumber) throws SQLException {
+        products = productObject.getByIds(dbConnection, "product_id", productIds);
+
+        for (int i = 0; i < productNumber; i++) {
+            double priceVat = 1.2 * newProducts.get(i).getPriceWithoutVat();
+            assertEquals(newProducts.get(i).getProductName(), products.get(i).getProductName());
+            assertEquals(newProducts.get(i).getProductType(), products.get(i).getProductType());
+            assertEquals(newProducts.get(i).getAvailableQuantity(), products.get(i).getAvailableQuantity());
+            assertEquals(newProducts.get(i).getWarehouse(), products.get(i).getWarehouse());
+            assertEquals(newProducts.get(i).getPriceWithoutVat(), products.get(i).getPriceWithoutVat());
+            assertEquals(Float.parseFloat(String.valueOf(String.format("%.2f", priceVat))),
+                    products.get(i).getPriceWithVat());
+            assertEquals(newProducts.get(i).getSupplierId(), products.get(i).getSupplierId());
+        }
     }
 
-    @Then("i verify that all mandatory fields are not null")
-    public void iVerifyThatAllMandatoryFieldsAreNotNull() {
+    @Then("^I check that no orders are related with (\\d+) products{0,1}$")
+    public void iCheckThatNoOrdersAreRelatedWithThisProduct(int productNumber) throws SQLException {
+        products = productObject.getProductsWithoutOrders(dbConnection);
+        System.out.println(products);
+        for (int i = 0; i < productNumber; i++) {
+            assertEquals(products.get(i).getProductId(), productIds.get(i));
+        }
+    }
+
+    @Given("^I create (\\d+) products{0,1} without (.*)$")
+    public void iCreateProductWithoutName(int productNumber, String property) {
+        faker = new Faker();
+        try {
+            for (int i = 0; i < productNumber; i++) {
+                newProducts.add(Product.builder()
+                        .productName(faker.commerce().productName())
+                        .productType(String.format("product%s", faker.number().numberBetween(10, 100)))
+                        .availableQuantity(faker.number().numberBetween(10, 100))
+                        .priceWithoutVat(Float.parseFloat(faker.commerce().price()))
+                        .inStock(true)
+                        .warehouse(faker.number().numberBetween(10, 100))
+                        .supplierId(faker.number().numberBetween(1, 24))
+                        .build());
+                switch (property) {
+                    case "product_name":
+                        newProducts.get(i).setProductName(null);
+                        break;
+                    case "product_type":
+                        newProducts.get(i).setProductType(null);
+                        break;
+                    case "available_quantity":
+                        newProducts.get(i).setAvailableQuantity(-1);
+                        break;
+                    case "price_without_vat":
+                        newProducts.get(i).setPriceWithoutVat(-1);
+                        break;
+                    case "warehouse":
+                        newProducts.get(i).setWarehouse(-1);
+                        break;
+                    case "supplier_id":
+                        newProducts.get(i).setSupplierId(-1);
+                        break;
+                }
+
+                productObject.save(dbConnection, newProducts.get(i));
+            }
+        } catch (SQLException sqe) {
+            System.out.println("Message = " + sqe.getMessage());
+            message = sqe.getMessage();
+        }
+
+        System.out.println(message);
+
+    }
+
+    @And("^I cannot save (\\d+) products{0,1} without (.*)$")
+    public void iCannotSaveProductWithoutProperties(int productNumber, String property) throws SQLException {
+        List<Product> getAllProducts = productObject.getAll(dbConnection);
+        assertEquals(0, getAllProducts.size());
+        assertTrue(message.contains(property));
     }
 }
