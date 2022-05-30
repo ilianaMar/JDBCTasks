@@ -1,7 +1,6 @@
 package stepDefinitions;
 
 import io.cucumber.java.After;
-import io.cucumber.java.bs.A;
 import io.cucumber.java.en.*;
 import io.cucumber.java.BeforeAll;
 import io.cucumber.java.AfterAll;
@@ -15,10 +14,12 @@ import java.util.*;
 import com.github.javafaker.Faker;
 import org.estafet.models.Customer;
 import org.estafet.models.CustomerAddress;
+import org.estafet.models.Order;
+import org.estafet.models.OrderProductQuantities;
 import org.estafet.models.Product;
-import org.estafet.objects.CustomerAddressObject;
-import org.estafet.objects.CustomerObject;
-import org.estafet.objects.ProductObject;
+import org.estafet.objects.*;
+
+import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,13 +38,22 @@ public class CustomerTestsSteps {
     CustomerObject customerObject = new CustomerObject();
     CustomerAddressObject customerAddressObject = new CustomerAddressObject();
     ProductObject productObject = new ProductObject();
+    OrderObject orderObject = new OrderObject();
+    OrdersProductsObject ordersProductsObject = new OrdersProductsObject();
     List<CustomerAddress> customerAddresses = null;
     List<Customer> customers = null;
     List<Product> products = null;
+    List<Order> orders = null;
+    List<OrderProductQuantities> ordersProducts = null;
     ArrayList<Integer> productIds = new ArrayList<>();
-    CustomerAddress newCustomerAddress;
-    Customer newCustomer;
+    ArrayList<Integer> customerIds = new ArrayList<>();
+    ArrayList<Integer> addressIds = new ArrayList<>();
+    ArrayList<Integer> orderIds = new ArrayList<>();
     List<Product> newProducts = new ArrayList<>();
+    List<Customer> newCustomers = new ArrayList<>();
+    List<CustomerAddress> newCustomerAddresses = new ArrayList<>();
+    List<Order> newOrders = new ArrayList<>();
+    List<OrderProductQuantities> newOrdersProducts = new ArrayList<>();
     Faker faker;
     String message = "";
 
@@ -55,14 +65,18 @@ public class CustomerTestsSteps {
     }
 
     @BeforeAll(order = 2)
-//    @After
+    @After
     public static void deleteData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
         ProductObject productObject = new ProductObject();
+        OrderObject orderObject = new OrderObject();
+        OrdersProductsObject ordersProductsObject = new OrdersProductsObject();
         customerObject.deleteAll(dbConnection);
         customerAddressObject.deleteAll(dbConnection);
         productObject.deleteAll(dbConnection);
+        orderObject.deleteAll(dbConnection);
+        ordersProductsObject.deleteAll(dbConnection);
     }
 
     @AfterAll
@@ -77,16 +91,16 @@ public class CustomerTestsSteps {
         faker = new Faker();
         try {
             for (int i = 0; i < customerNumber; i++) {
-                newCustomerAddress = CustomerAddress.builder()
+                newCustomerAddresses.add(CustomerAddress.builder()
                         .address(faker.address().streetName())
                         .city(faker.address().city())
                         .country(faker.address().country())
                         .state(faker.address().state())
                         .postalCode(faker.number().numberBetween(1000, 9000))
-                        .build();
-                int lastAddressId = customerAddressObject.save(dbConnection, newCustomerAddress);
-                customerAddresses = customerAddressObject.getAll(dbConnection);
-                newCustomer = Customer.builder()
+                        .build());
+                int lastAddressId = customerAddressObject.save(dbConnection, newCustomerAddresses.get(i));
+                addressIds.add(lastAddressId);
+                newCustomers.add(Customer.builder()
                         .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()))
                         .age(faker.number().numberBetween(20, 90))
                         .email(faker.internet().emailAddress())
@@ -94,8 +108,9 @@ public class CustomerTestsSteps {
                         .active(true)
                         .gdprSet(true)
                         .addressId(lastAddressId)
-                        .build();
-                customerObject.save(dbConnection, newCustomer);
+                        .build());
+                int customerId = customerObject.save(dbConnection, newCustomers.get(i));
+                customerIds.add(customerId);
             }
         } catch (SQLException sqe) {
             System.out.println("Error Code = " + sqe.getErrorCode());
@@ -105,7 +120,8 @@ public class CustomerTestsSteps {
     }
 
     @Then("I check that there are no customers without address")
-    public void iCheckThatThereAreNoCustomersWithoutAddress() {
+    public void iCheckThatThereAreNoCustomersWithoutAddress() throws SQLException {
+        customerAddresses = customerAddressObject.getAll(dbConnection);
         for (CustomerAddress address : customerAddresses) {
             assertTrue(!address.getAddress().isEmpty() && !address.getAddress().isBlank());
         }
@@ -127,56 +143,51 @@ public class CustomerTestsSteps {
         assertEquals(setEmails.size(), listEmails.size());
     }
 
-    @Then("I verify that customer is created correctly")
-    public void iVerifyThatCustomerIsCreatedCorrectly() throws SQLException {
-        List<Customer> getAllCustomers = customerObject.getAll(dbConnection);
-        List<CustomerAddress> getAllCustomerAddresses = customerAddressObject.getAll(dbConnection);
-        System.out.println("99999 " + getAllCustomers);
-        assertEquals(1, getAllCustomers.size());
-        assertEquals(1, getAllCustomerAddresses.size());
-        for (Customer customer : getAllCustomers) {
-            for (CustomerAddress address : getAllCustomerAddresses) {
-                assertEquals(newCustomer.getName(), customer.getName());
-                assertEquals(newCustomer.getPhone(), customer.getPhone());
-                assertEquals(newCustomer.getEmail(), customer.getEmail());
-                assertEquals(newCustomer.getAge(), customer.getAge());
-                assertEquals(newCustomer.isActive(), customer.isActive());
-                assertEquals(newCustomer.isGdprSet(), customer.isGdprSet());
-                assertNotNull(customer.getCreatedTime());
-                assertNull(customer.getUpdatedTime());
-                assertEquals(customer.getAddressId(), address.getAddressId());
-                assertEquals(newCustomerAddress.getAddress(), address.getAddress());
-                assertEquals(newCustomerAddress.getCountry(), address.getCountry());
-                assertEquals(newCustomerAddress.getCity(), address.getCity());
-                assertEquals(newCustomerAddress.getState(), address.getState());
-                assertEquals(newCustomerAddress.getPostalCode(), address.getPostalCode());
-            }
+    @Then("^I verify that (\\d+) customers{0,1} is created correctly$")
+    public void iVerifyThatCustomerIsCreatedCorrectly(int customerNumber) throws SQLException {
+        customers = customerObject.getByIds(dbConnection, "customer_id", customerIds);
+        customerAddresses = customerAddressObject.getByIds(dbConnection, "address_id", addressIds);
+        assertEquals(customerNumber, customers.size());
+        assertEquals(customerNumber, customerAddresses.size());
+        for (int i = 0; i < customerNumber; i++) {
+            assertEquals(newCustomers.get(i).getName(), customers.get(i).getName());
+            assertEquals(newCustomers.get(i).getPhone(), customers.get(i).getPhone());
+            assertEquals(newCustomers.get(i).getEmail(), customers.get(i).getEmail());
+            assertEquals(newCustomers.get(i).getAge(), customers.get(i).getAge());
+            assertEquals(newCustomers.get(i).isActive(), customers.get(i).isActive());
+            assertEquals(newCustomers.get(i).isGdprSet(), customers.get(i).isGdprSet());
+            assertEquals(newCustomers.get(i).getAddressId(), customers.get(i).getAddressId());
+            assertEquals(newCustomerAddresses.get(i).getAddress(), customerAddresses.get(i).getAddress());
+            assertEquals(newCustomerAddresses.get(i).getCity(), customerAddresses.get(i).getCity());
+            assertEquals(newCustomerAddresses.get(i).getCountry(), customerAddresses.get(i).getCountry());
+            assertEquals(newCustomerAddresses.get(i).getState(), customerAddresses.get(i).getState());
+            assertEquals(newCustomerAddresses.get(i).getProvince(), customerAddresses.get(i).getProvince());
         }
     }
 
     @Given("^I create (\\d+) customers{0,1} without mandatory fields (.*)$")
     public void iCreateCustomerWithoutMandatoryFields(int customerNumber, String property) {
         faker = new Faker();
-        newCustomer = Customer.builder()
-                .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()))
-                .age(faker.number().numberBetween(20, 90))
-                .email(faker.internet().emailAddress())
-                .phone(faker.phoneNumber().cellPhone())
-                .active(true)
-                .gdprSet(true)
-                .build();
-        switch (property) {
-            case "name":
-                newCustomer.setName(null);
-                break;
-            case "address_id":
-                newCustomer.setAddressId(0);
-                break;
-        }
         try {
             for (int i = 0; i < customerNumber; i++) {
-                System.out.println(newCustomer);
-                customerObject.save(dbConnection, newCustomer);
+                newCustomers.add(Customer.builder()
+                        .name(String.format("%s %s", faker.name().firstName(), faker.name().lastName()))
+                        .age(faker.number().numberBetween(20, 90))
+                        .email(faker.internet().emailAddress())
+                        .phone(faker.phoneNumber().cellPhone())
+                        .active(true)
+                        .gdprSet(true)
+                        .build());
+                switch (property) {
+                    case "name":
+                        newCustomers.get(i).setName(null);
+                        break;
+                    case "address_id":
+                        newCustomers.get(i).setAddressId(0);
+                        break;
+                }
+                System.out.println(newCustomers.get(i));
+                customerObject.save(dbConnection, newCustomers.get(i));
             }
         } catch (SQLException sqe) {
             System.out.println("Message = " + sqe.getMessage());
@@ -202,6 +213,8 @@ public class CustomerTestsSteps {
             listIds.add(address.getAddressId());
             customers = customerObject.getByIds(dbConnection, "address_id", listIds);
         }
+
+        System.out.println(customers);
     }
 
     @Then("^I check that (\\d+) customers{0,1} mandatory fields are not empty$")
@@ -216,28 +229,28 @@ public class CustomerTestsSteps {
     @Given("^I create (\\d+) customer (?:address|addresses) without (.*)$")
     public void iCreateCustomerAddressesWithoutMandatoryFields(int addressNumber, String property) {
         faker = new Faker();
-        newCustomerAddress = CustomerAddress.builder()
-                .address(faker.address().streetName())
-                .city(faker.address().city())
-                .country(faker.address().country())
-                .state(faker.address().state())
-                .postalCode(faker.number().numberBetween(1000, 9000))
-                .build();
-        switch (property) {
-            case "city":
-                newCustomerAddress.setCity(null);
-                break;
-            case "country":
-                newCustomerAddress.setCountry(null);
-                break;
-            case "postal_code":
-                newCustomerAddress.setPostalCode(0);
-                break;
-        }
 
         try {
             for (int i = 0; i < addressNumber; i++) {
-                customerAddressObject.save(dbConnection, newCustomerAddress);
+                newCustomerAddresses.add(CustomerAddress.builder()
+                        .address(faker.address().streetName())
+                        .city(faker.address().city())
+                        .country(faker.address().country())
+                        .state(faker.address().state())
+                        .postalCode(faker.number().numberBetween(1000, 9000))
+                        .build());
+                switch (property) {
+                    case "city":
+                        newCustomerAddresses.get(i).setCity(null);
+                        break;
+                    case "country":
+                        newCustomerAddresses.get(i).setCountry(null);
+                        break;
+                    case "postal_code":
+                        newCustomerAddresses.get(i).setPostalCode(0);
+                        break;
+                }
+                customerAddressObject.save(dbConnection, newCustomerAddresses.get(i));
             }
         } catch (SQLException sqe) {
             System.out.println("Message = " + sqe.getMessage());
@@ -353,5 +366,90 @@ public class CustomerTestsSteps {
         List<Product> getAllProducts = productObject.getAll(dbConnection);
         assertEquals(0, getAllProducts.size());
         assertTrue(message.contains(property));
+    }
+
+    @When("^I create (\\d+) orders{0,1} with all mandatory fields$")
+    public void iCreateOrdersWithAllMandatoryFields(int ordersCount) throws SQLException {
+        faker = new Faker();
+        for (int i = 0; i < ordersCount; i++) {
+            for (Integer cid : customerIds) {
+                newOrders.add(Order.builder()
+                        .customerId(cid)
+                        .orderCompleted(true)
+                        .orderPayed(true)
+                        .dateOfOrder(new Timestamp(System.currentTimeMillis()))
+                        .dateOrderCompleted(new Timestamp(System.currentTimeMillis()))
+                        .build()
+                );
+            }
+            int orderId = orderObject.save(dbConnection, newOrders.get(i));
+            orderIds.add(orderId);
+        }
+
+        for (Integer pid : productIds) {
+            for (Integer oid : orderIds) {
+                newOrdersProducts.add(OrderProductQuantities.builder()
+                        .orderId(oid)
+                        .productId(pid)
+                        .quantity(1)
+                        .build()
+                );
+            }
+        }
+
+        for (OrderProductQuantities query : newOrdersProducts) {
+            ordersProductsObject.save(dbConnection, query);
+        }
+    }
+
+    @Then("I check that orders mandatory fields are filled")
+    public void iCheckThatOrdersMandatoryFieldsAreFilled() throws SQLException {
+        ArrayList<Integer> randomCustomerIds = new ArrayList<>();
+        for (Customer customer : customers) {
+            randomCustomerIds.add(customer.getCustomerId());
+        }
+        orders = orderObject.getByIds(dbConnection, "customer_id", randomCustomerIds);
+        for (Order order : orders) {
+            assertTrue(order.getId() != 0);
+            assertNotNull(order.getCustomerId());
+        }
+    }
+
+    @And("I get {int} random order")
+    public void iGetRandomOrder(int count) throws SQLException {
+        orders = orderObject.getRandomIds(dbConnection, count);
+    }
+
+    @Then("^I check that customer_id is not null$")
+    public void iCheckThatCustomer_idIsNotNull() {
+        for (Order order : orders) {
+            assertTrue(order.getCustomerId() != 0);
+        }
+    }
+
+    @Then("I check that order products exists")
+    public void iCheckThatOrderProductsExists() throws SQLException {
+        List<Integer> pList = new ArrayList<>();
+        for (Order order : orders) {
+            ordersProducts = ordersProductsObject.getById(dbConnection, order.getId(), "oid");
+        }
+
+        for (OrderProductQuantities op : ordersProducts) {
+            pList.add(op.getProductId());
+        }
+        assertNotNull(productObject.getByIds(dbConnection, "product_id", pList));
+    }
+
+    @Then("^I verify that (\\d+) orders{0,1} is created correctly$")
+    public void iVerifyThatOrdersIsCreatedCorrectly(int count) throws SQLException {
+        orders = orderObject.getByIds(dbConnection, "id", orderIds);
+        assertEquals(count, orders.size());
+        for (int i = 0; i < count; i++) {
+            assertEquals(newOrders.get(i).getCustomerId(), orders.get(i).getCustomerId());
+            assertEquals(newOrders.get(i).isOrderCompleted(), orders.get(i).isOrderCompleted());
+            assertEquals(newOrders.get(i).isOrderPayed(), orders.get(i).isOrderPayed());
+            assertEquals(newOrders.get(i).getDateOfOrder(), orders.get(i).getDateOfOrder());
+            assertEquals(newOrders.get(i).getDateOrderCompleted(), orders.get(i).getDateOrderCompleted());
+        }
     }
 }

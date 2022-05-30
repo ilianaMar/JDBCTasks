@@ -1,4 +1,5 @@
 Feature: Customer CRUD tests
+
   Scenario: Check customers have only one address
     Given I create 3 customers with all mandatory fields
     Then I check that there are no customers without address
@@ -8,8 +9,8 @@ Feature: Customer CRUD tests
     Then I compare customers phone and email them that are not equal
 
   Scenario: Check that customer can be create with all mandatory fields
-    Given I create 1 customer with all mandatory fields
-    Then I verify that customer is created correctly
+    Given I create 2 customers with all mandatory fields
+    Then I verify that 2 customers is created correctly
 
   Scenario: Check that customer cannot be created without mandatory fields
     Given I create 1 customer without mandatory fields name
@@ -48,3 +49,30 @@ Feature: Customer CRUD tests
     Then I cannot save 1 product without warehouse
     When I create 1 product without supplier_id
     Then I cannot save 1 product without supplier_id
+
+  Scenario: User gets random customers and verifies that their orders (if any) have all mandatory fields filled
+    Given I create 2 customers with all mandatory fields
+    And   I create 2 products with all mandatory fields
+    When  I create 2 orders with all mandatory fields
+    And   I get random 1 customer
+    Then I check that orders mandatory fields are filled
+
+  Scenario: User gets random orders and verifies that customer_id is not null
+    Given I create 3 customers with all mandatory fields
+    And   I create 3 products with all mandatory fields
+    When  I create 3 orders with all mandatory fields
+    And I get 1 random order
+    Then I check that customer_id is not null
+
+  Scenario: User gets random orders and verifies that all their products exists in the products table
+    Given I create 3 customers with all mandatory fields
+    And   I create 3 products with all mandatory fields
+    When  I create 3 orders with all mandatory fields
+    And I get 1 random order
+    Then I check that order products exists
+
+  Scenario: User creates order and verify that all fields are not null
+    Given I create 1 customer with all mandatory fields
+    And   I create 1 product with all mandatory fields
+    When  I create 1 order with all mandatory fields
+    Then I verify that 1 orders is created correctly

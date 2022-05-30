@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 public class ProductObject extends DatabaseDriver implements DAOInterface<Product> {
     private final String tableName = "public.products_inventory";
-    private final String ordersProductsTableName = "public.orders_product_quantities";
 
     public int save(Connection dbConnection, Product product) throws SQLException {
         String query
@@ -40,8 +39,8 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
         deleteTableData(dbConnection, query);
     }
 
-    public List<Product> getById(Connection dbConnection, int id) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE product_id=%s", tableName, id);
+    public List<Product> getById(Connection dbConnection, int id, String columnName) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
         System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Product.class);
     }
@@ -75,11 +74,12 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
     }
 
     public List<Product> getRandomIds(Connection dbConnection, int count) throws SQLException {
-        String query = String.format("SELECT customer_id FROM %s ORDER BY random() LIMIT %s", tableName, count);
+        String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT %s", tableName, count);
         return getDbResultSet(dbConnection, query, Product.class);
     }
 
     public List<Product> getProductsWithoutOrders(Connection dbConnection) throws SQLException {
+        String ordersProductsTableName = "public.orders_product_quantities";
         String query = String.format("SELECT  * FROM %s \n" +
                 "LEFT JOIN %s \n" +
                 "ON public.products_inventory.product_id = public.orders_product_quantities.pid\n" +

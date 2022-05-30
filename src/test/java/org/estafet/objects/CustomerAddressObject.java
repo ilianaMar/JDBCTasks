@@ -42,8 +42,8 @@ public class CustomerAddressObject extends DatabaseDriver implements DAOInterfac
         deleteTableData(dbConnection, query);
     }
 
-    public List<CustomerAddress> getById(Connection dbConnection, int id) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE address_id=%s", tableName, id);
+    public List<CustomerAddress> getById(Connection dbConnection, int id, String columnName) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
 
         System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, CustomerAddress.class);

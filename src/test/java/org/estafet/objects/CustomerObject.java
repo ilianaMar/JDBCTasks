@@ -45,8 +45,8 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
     }
 
     //    getById - get a single record from the table by id
-    public List<Customer> getById(Connection dbConnection, int id) throws SQLException {
-        String query = String.format("SELECT * FROM %s WHERE customer_id=%s", tableName, id);
+    public List<Customer> getById(Connection dbConnection, int id, String columnName) throws SQLException {
+        String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
         System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Customer.class);
     }

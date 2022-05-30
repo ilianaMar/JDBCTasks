@@ -16,8 +16,12 @@ import org.estafet.objects.CustomerObject;
 import org.estafet.models.Customer;
 import org.estafet.helpers.DbConnectionHelper;
 
+import javax.persistence.Entity;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.lang.reflect.*;
 
 @DisplayName("First test suite")
 public class FirstSuitTests {
@@ -121,8 +125,8 @@ public class FirstSuitTests {
     void getSpecificCustomerData() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
-        List<Customer> firstCustomer = customerObject.getById(dbConnection, 391);
-        List<CustomerAddress> firstCustomerAddress = customerAddressObject.getById(dbConnection, 403);
+        List<Customer> firstCustomer = customerObject.getById(dbConnection, 391, "customer_id");
+        List<CustomerAddress> firstCustomerAddress = customerAddressObject.getById(dbConnection, 403, "address_id");
         HashMap<Customer, CustomerAddress> allCustomersData = customerObject.getAllCustomerAddressDataById(dbConnection, 391);
 
         for (Customer customer : allCustomersData.keySet()) {
@@ -157,8 +161,8 @@ public class FirstSuitTests {
             customerAddressObject.delete(dbConnection, address_id);
 
         }
-        assertEquals(customerObject.getById(dbConnection, customer_id).get(0).getCustomerId(), 0);
-        assertEquals(customerAddressObject.getById(dbConnection, address_id).get(0).getAddressId(), 0);
+        assertEquals(customerObject.getById(dbConnection, customer_id, "customer_id").get(0).getCustomerId(), 0);
+        assertEquals(customerAddressObject.getById(dbConnection, address_id, "address_id").get(0).getAddressId(), 0);
     }
 
     @Test
@@ -221,7 +225,7 @@ public class FirstSuitTests {
     void getRandomAddressesIds() throws SQLException {
         CustomerAddressObject customerAddressObject = new CustomerAddressObject();
         List<CustomerAddress> randIds = customerAddressObject.getRandomIds(dbConnection, 5);
-        for (CustomerAddress address : randIds){
+        for (CustomerAddress address : randIds) {
             System.out.println(address.getAddressId());
         }
     }
@@ -229,10 +233,24 @@ public class FirstSuitTests {
     @Test
     @DisplayName("Get random 5 customers")
     void getRandomCustomerIds() throws SQLException {
-        CustomerObject customerObject = new CustomerObject();
-        List<Customer> randIds = customerObject.getRandomIds(dbConnection, 5);
-        for (Customer customer : randIds){
-            System.out.println(customer.getCustomerId());
+//        CustomerObject customerObject = new CustomerObject();
+//        List<Customer> randIds = customerObject.getRandomIds(dbConnection, 5);
+//        for (Customer customer : randIds){
+//            System.out.println(customer.getCustomerId());
+//        }
+
+        Customer customer = new Customer();
+        Field[] fields = customer.getClass().getDeclaredFields();
+        List<Field> fieldNames = new ArrayList<>();
+        for (Field field : fields) {
+            fieldNames.add(field);
         }
+        Class<?> clazz = customer.getClass();
+//        System.out.println(fieldNames);
+        System.out.println(clazz.getSimpleName());
+        System.out.println(clazz.getName());
+        System.out.println(clazz.getCanonicalName());
+        System.out.println(clazz.isAnnotationPresent(Entity.class));
+        System.out.println(clazz.getModifiers());
     }
 }

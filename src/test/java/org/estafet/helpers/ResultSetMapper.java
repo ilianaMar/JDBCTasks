@@ -49,12 +49,8 @@ public class ResultSetMapper<T> {
                                 }
                             }
                         }
-                        if (outputList == null) {
-                            outputList = new ArrayList<>();
-                        }
                         outputList.add(bean);
                     }
-
                 } else {
                     try {
                         throw new Exception("Entity annotation is not added");
