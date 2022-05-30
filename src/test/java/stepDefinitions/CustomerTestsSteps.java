@@ -427,7 +427,18 @@ public class CustomerTestsSteps {
         for (OrderProductQuantities op : ordersProducts) {
             pList.add(op.getProductId());
         }
-        assertNotNull(productObject.getByIds(dbConnection, "product_id", pList));
+        products = productObject.getByIds(dbConnection, "product_id", pList);
+        assertNotNull(products);
+
+        for(Product product : products){
+            assertNotNull(product.getProductName());
+            assertNotNull(product.getProductType());
+            assertNotNull(product.getPriceWithoutVat());
+            assertNotNull(product.getWarehouse());
+            assertNotNull(product.getPriceWithVat());
+            assertNotNull(product.getSupplierId());
+            assertNotNull(product.getAvailableQuantity());
+        }
     }
 
     @Then("^I verify that (\\d+) orders{0,1} is created correctly$")
