@@ -1,4 +1,4 @@
-Feature: Customer CRUD tests
+Feature: Customer, Products, Orders CRUD tests
 
   Scenario: Check customers have only one address
     Given I create 3 customers with all mandatory fields
@@ -76,3 +76,13 @@ Feature: Customer CRUD tests
     And   I create 1 product with all mandatory fields
     When  I create 1 order with all mandatory fields
     Then I verify that 1 orders is created correctly
+
+  Scenario: User cannot save new order without mandatory fields
+    Given I create 1 customer with all mandatory fields
+    And   I create 1 product with all mandatory fields
+    When I create 1 order without customer_id
+    Then I cannot save 1 order without customer_id
+    When I create 1 order without oid
+    Then I cannot save 1 order without oid
+    When I create 1 order without pid
+    Then I cannot save 1 order without pid

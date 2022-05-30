@@ -44,8 +44,7 @@ public class CustomerAddressObject extends DatabaseDriver implements DAOInterfac
 
     public List<CustomerAddress> getById(Connection dbConnection, int id, String columnName) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
-
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, CustomerAddress.class);
     }
 
@@ -57,7 +56,7 @@ public class CustomerAddressObject extends DatabaseDriver implements DAOInterfac
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
 
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, CustomerAddress.class);
     }
 
@@ -67,33 +66,19 @@ public class CustomerAddressObject extends DatabaseDriver implements DAOInterfac
         return getDbResultSet(dbConnection, query, CustomerAddress.class);
     }
 
-    public int getAllRecordsCount(Connection dbConnection) throws SQLException {
+    public long getAllRecordsCount(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT COUNT(*) as count FROM %s", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            count = rs.getInt("count");
-        }
-        return count;
+        return getDbTableCount(dbConnection, query);
     }
 
     public List<CustomerAddress> getByRandomId(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", tableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, CustomerAddress.class);
     }
 
     public List<CustomerAddress> getRandomIds(Connection dbConnection, int count) throws SQLException {
         String query = String.format("SELECT address_id FROM %s ORDER BY random() LIMIT %s", tableName, count);
-//        PreparedStatement ps = dbConnection.prepareStatement(query);
-//        ResultSet rs = ps.executeQuery();
-//        List<Integer> ids = new ArrayList<>();
-//        while (rs.next()) {
-//            ids.add(rs.getInt("address_id"));
-//        }
-//        return ids;
-
         return getDbResultSet(dbConnection, query, CustomerAddress.class);
     }
 }

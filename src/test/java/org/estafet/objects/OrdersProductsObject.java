@@ -1,9 +1,7 @@
 package org.estafet.objects;
 
 import org.estafet.helpers.DatabaseDriver;
-import org.estafet.models.Order;
 import org.estafet.models.OrderProductQuantities;
-import org.estafet.models.Product;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +19,7 @@ public class OrdersProductsObject extends DatabaseDriver implements DAOInterface
         ps.setInt(1, orderProductQuantities.getProductId());
         ps.setInt(2, orderProductQuantities.getOrderId());
         ps.setInt(3, orderProductQuantities.getQuantity());
-        System.out.println("33333 " + ps);
+//        System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);
     }
 
@@ -49,25 +47,29 @@ public class OrdersProductsObject extends DatabaseDriver implements DAOInterface
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
 
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, OrderProductQuantities.class);
     }
 
     public List<OrderProductQuantities> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", ordersProductsTableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, OrderProductQuantities.class);
     }
 
-    public int getAllRecordsCount(Connection dbConnection) throws SQLException {
-        return 0;
+    public long getAllRecordsCount(Connection dbConnection) throws SQLException {
+        String query = String.format("SELECT COUNT(*) as count FROM %s", ordersProductsTableName);
+        return getDbTableCount(dbConnection, query);
     }
 
     public List<OrderProductQuantities> getByRandomId(Connection dbConnection) throws SQLException {
-        return null;
+        String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", ordersProductsTableName);
+//        System.out.println("executing query: " + query);
+        return getDbResultSet(dbConnection, query, OrderProductQuantities.class);
     }
 
     public List<OrderProductQuantities> getRandomIds(Connection dbConnection, int count) throws SQLException {
-        return null;
+        String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT %s", ordersProductsTableName, count);
+        return getDbResultSet(dbConnection, query, OrderProductQuantities.class);
     }
 }

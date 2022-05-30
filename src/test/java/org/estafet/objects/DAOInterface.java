@@ -17,7 +17,7 @@ public interface DAOInterface<Type> {
 
     List<?> getAll(Connection dbConnection) throws SQLException;
 
-    int getAllRecordsCount(Connection dbConnection) throws SQLException;
+    long getAllRecordsCount(Connection dbConnection) throws SQLException;
 
     List<?> getByRandomId(Connection dbConnection) throws SQLException;
 

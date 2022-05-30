@@ -112,9 +112,9 @@ public class CustomerTestsSteps {
                 int customerId = customerObject.save(dbConnection, newCustomers.get(i));
                 customerIds.add(customerId);
             }
+            assertEquals(customerObject.getAllRecordsCount(dbConnection), customerNumber);
+            assertEquals(customerAddressObject.getAllRecordsCount(dbConnection), customerNumber);
         } catch (SQLException sqe) {
-            System.out.println("Error Code = " + sqe.getErrorCode());
-            System.out.println("SQL state = " + sqe.getSQLState());
             System.out.println("Message = " + sqe.getMessage());
         }
     }
@@ -186,7 +186,6 @@ public class CustomerTestsSteps {
                         newCustomers.get(i).setAddressId(0);
                         break;
                 }
-                System.out.println(newCustomers.get(i));
                 customerObject.save(dbConnection, newCustomers.get(i));
             }
         } catch (SQLException sqe) {
@@ -209,12 +208,9 @@ public class CustomerTestsSteps {
         List<CustomerAddress> randomAddressIds = customerAddressObject.getRandomIds(dbConnection, customerNumber);
         List<Integer> listIds = new ArrayList<>();
         for (CustomerAddress address : randomAddressIds) {
-            System.out.println(address.getAddressId());
             listIds.add(address.getAddressId());
             customers = customerObject.getByIds(dbConnection, "address_id", listIds);
         }
-
-        System.out.println(customers);
     }
 
     @Then("^I check that (\\d+) customers{0,1} mandatory fields are not empty$")
@@ -283,8 +279,6 @@ public class CustomerTestsSteps {
                 productIds.add(productId);
             }
         } catch (SQLException sqe) {
-            System.out.println("Error Code = " + sqe.getErrorCode());
-            System.out.println("SQL state = " + sqe.getSQLState());
             System.out.println("Message = " + sqe.getMessage());
         }
     }
@@ -309,7 +303,6 @@ public class CustomerTestsSteps {
     @Then("^I check that no orders are related with (\\d+) products{0,1}$")
     public void iCheckThatNoOrdersAreRelatedWithThisProduct(int productNumber) throws SQLException {
         products = productObject.getProductsWithoutOrders(dbConnection);
-        System.out.println(products);
         for (int i = 0; i < productNumber; i++) {
             assertEquals(products.get(i).getProductId(), productIds.get(i));
         }
@@ -356,9 +349,6 @@ public class CustomerTestsSteps {
             System.out.println("Message = " + sqe.getMessage());
             message = sqe.getMessage();
         }
-
-        System.out.println(message);
-
     }
 
     @And("^I cannot save (\\d+) products{0,1} without (.*)$")
@@ -451,5 +441,56 @@ public class CustomerTestsSteps {
             assertEquals(newOrders.get(i).getDateOfOrder(), orders.get(i).getDateOfOrder());
             assertEquals(newOrders.get(i).getDateOrderCompleted(), orders.get(i).getDateOrderCompleted());
         }
+    }
+
+    @Given("^I create (\\d+) orders{0,1} without (.*)$")
+    public void iCreateOrderWithoutMandatoryProperties(int count, String property) {
+        faker = new Faker();
+        try {
+            for (int i = 0; i < count; i++) {
+                for (Integer cid : customerIds) {
+                    newOrders.add(Order.builder()
+                            .customerId(cid)
+                            .orderCompleted(true)
+                            .orderPayed(true)
+                            .dateOfOrder(new Timestamp(System.currentTimeMillis()))
+                            .dateOrderCompleted(new Timestamp(System.currentTimeMillis()))
+                            .build()
+                    );
+                    for (Integer pid : productIds) {
+                        newOrdersProducts.add(OrderProductQuantities.builder()
+                                .productId(pid)
+                                .quantity(1)
+                                .build()
+                        );
+                    }
+
+                    switch (property) {
+                        case "customer_id":
+                            newOrders.get(i).setCustomerId(-1);
+                            break;
+                        case "oid":
+                            newOrders.get(i).setCustomerId(cid);
+                            newOrdersProducts.get(i).setOrderId(-1);
+                            break;
+                        case "pid":
+                            newOrders.get(i).setCustomerId(cid);
+                            newOrdersProducts.get(i).setProductId(-1);
+                            break;
+                    }
+                }
+
+                orderObject.save(dbConnection, newOrders.get(i));
+                ordersProductsObject.save(dbConnection, newOrdersProducts.get(i));
+            }
+        } catch (SQLException sqe) {
+            System.out.println("Message = " + sqe.getMessage());
+            message = sqe.getMessage();
+        }
+    }
+
+    @And("I cannot save (\\d+) orders{0,1} without (.*)$")
+    public void iCannotSaveOrderWithoutMandatoryProperties(int count, String property) {
+        assertTrue(message.contains(property));
     }
 }

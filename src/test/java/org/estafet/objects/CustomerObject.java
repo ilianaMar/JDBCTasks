@@ -28,7 +28,7 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
         ps.setBoolean(5, customer.isGdprSet());
         ps.setBoolean(6, customer.isActive());
         ps.setInt(7, customer.getAddressId());
-        System.out.println("33333 " + ps);
+//        System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);
     }
 
@@ -47,7 +47,7 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
     //    getById - get a single record from the table by id
     public List<Customer> getById(Connection dbConnection, int id, String columnName) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Customer.class);
     }
 
@@ -95,30 +95,24 @@ public class CustomerObject extends DatabaseDriver implements DAOInterface<Custo
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
 
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Customer.class);
     }
 
     public List<Customer> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", tableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Customer.class);
     }
 
-    public int getAllRecordsCount(Connection dbConnection) throws SQLException {
+    public long getAllRecordsCount(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT COUNT(*) as count FROM %s", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            count = rs.getInt("count");
-        }
-        return count;
+        return getDbTableCount(dbConnection, query);
     }
 
     public List<Customer> getByRandomId(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", tableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Customer.class);
     }
 

@@ -2,7 +2,6 @@ package org.estafet.objects;
 
 import org.estafet.helpers.DatabaseDriver;
 import org.estafet.models.Order;
-import org.estafet.models.Product;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 
 public class OrderObject extends DatabaseDriver implements DAOInterface<Order> {
     private final String orderTableName = "public.orders";
-    private final String ordersProductsTableName = "public.orders_product_quantities";
 
     public int save(Connection dbConnection, Order order) throws SQLException {
         String query
@@ -24,7 +22,7 @@ public class OrderObject extends DatabaseDriver implements DAOInterface<Order> {
         ps.setBoolean(3, order.isOrderCompleted());
         ps.setTimestamp(4, order.getDateOrderCompleted());
         ps.setTimestamp(5, order.getDateOfOrder());
-        System.out.println("33333 " + ps);
+//        System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);
     }
 
@@ -40,7 +38,7 @@ public class OrderObject extends DatabaseDriver implements DAOInterface<Order> {
 
     public List<Order> getById(Connection dbConnection, int id, String columnName) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE %s=%s", orderTableName, columnName, id);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Order.class);
     }
 
@@ -52,22 +50,25 @@ public class OrderObject extends DatabaseDriver implements DAOInterface<Order> {
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
 
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Order.class);
     }
 
     public List<Order> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", orderTableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Order.class);
     }
 
-    public int getAllRecordsCount(Connection dbConnection) throws SQLException {
-        return 0;
+    public long getAllRecordsCount(Connection dbConnection) throws SQLException {
+        String query = String.format("SELECT COUNT(*) as count FROM %s", orderTableName);
+        return getDbTableCount(dbConnection, query);
     }
 
     public List<Order> getByRandomId(Connection dbConnection) throws SQLException {
-        return null;
+        String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", orderTableName);
+//        System.out.println("executing query: " + query);
+        return getDbResultSet(dbConnection, query, Order.class);
     }
 
     public List<Order> getRandomIds(Connection dbConnection, int count) throws SQLException {

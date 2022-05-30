@@ -25,7 +25,7 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
         ps.setBoolean(5, product.isInStock());
         ps.setInt(6, product.getWarehouse());
         ps.setInt(7, product.getSupplierId());
-        System.out.println("33333 " + ps);
+//        System.out.println("33333 " + ps);
         return insertDbTableRowData(dbConnection, ps);
     }
 
@@ -41,7 +41,7 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
 
     public List<Product> getById(Connection dbConnection, int id, String columnName) throws SQLException {
         String query = String.format("SELECT * FROM %s WHERE %s=%s", tableName, columnName, id);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Product.class);
     }
 
@@ -53,23 +53,24 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
                 .collect(Collectors.joining(",", "(", ")"));
         query = query.replace("(?)", sqlIN);
 
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Product.class);
     }
 
     public List<Product> getAll(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s", tableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Product.class);
     }
 
-    public int getAllRecordsCount(Connection dbConnection) throws SQLException {
-        return 0;
+    public long getAllRecordsCount(Connection dbConnection) throws SQLException {
+        String query = String.format("SELECT COUNT(*) as count FROM %s", tableName);
+        return getDbTableCount(dbConnection, query);
     }
 
     public List<Product> getByRandomId(Connection dbConnection) throws SQLException {
         String query = String.format("SELECT * FROM %s ORDER BY random() LIMIT 1", tableName);
-        System.out.println("executing query: " + query);
+//        System.out.println("executing query: " + query);
         return getDbResultSet(dbConnection, query, Product.class);
     }
 
