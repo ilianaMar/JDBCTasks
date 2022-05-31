@@ -15,9 +15,13 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
 
     public int save(Connection dbConnection, Product product) throws SQLException {
         InsertBuilder insertBuilder = new InsertBuilder(tableName);
-        insertBuilder.set("product_name", String.format("'%s'", product.getProductName()))
+        String productName = (product.getProductName() != null) ?
+                String.format("'%s'", product.getProductName()) : product.getProductName();
+        String productType = (product.getProductType() != null) ?
+                String.format("'%s'", product.getProductType()) : product.getProductType();
+        insertBuilder.set("product_name", productName)
                 .set("available_quantity", String.valueOf(product.getAvailableQuantity()))
-                .set("product_type", String.format("'%s'", product.getProductType()))
+                .set("product_type", productType)
                 .set("price_without_vat", String.valueOf(product.getPriceWithoutVat()))
                 .set("in_stock", String.valueOf(product.isInStock()))
                 .set("warehouse", String.valueOf(product.getWarehouse()));

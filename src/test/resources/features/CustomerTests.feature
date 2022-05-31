@@ -47,8 +47,8 @@ Feature: Customer, Products, Orders CRUD tests
     Then I cannot save 1 product without price_without_vat
     When I create 1 product without warehouse
     Then I cannot save 1 product without warehouse
-    When I create 1 product without supplier_id
-    Then I cannot save 1 product without supplier_id
+#    When I create 1 product without supplier_id
+#    Then I cannot save 1 product without supplier_id
 
   Scenario: User gets random customers and verifies that their orders (if any) have all mandatory fields filled
     Given I create 2 customers with all mandatory fields
