@@ -273,7 +273,7 @@ public class CustomerTestsSteps {
                         .priceWithoutVat(Float.parseFloat(faker.commerce().price()))
                         .inStock(true)
                         .warehouse(faker.number().numberBetween(10, 100))
-                        .supplierId(faker.number().numberBetween(1, 24))
+//                        .supplierId(faker.number().numberBetween(1, 24))
                         .build());
                 int productId = productObject.save(dbConnection, newProducts.get(i));
                 productIds.add(productId);
@@ -296,7 +296,7 @@ public class CustomerTestsSteps {
             assertEquals(newProducts.get(i).getPriceWithoutVat(), products.get(i).getPriceWithoutVat());
             assertEquals(Float.parseFloat(String.valueOf(String.format("%.2f", priceVat))),
                     products.get(i).getPriceWithVat());
-            assertEquals(newProducts.get(i).getSupplierId(), products.get(i).getSupplierId());
+//            assertEquals(newProducts.get(i).getSupplierId(), products.get(i).getSupplierId());
         }
     }
 
@@ -320,7 +320,7 @@ public class CustomerTestsSteps {
                         .priceWithoutVat(Float.parseFloat(faker.commerce().price()))
                         .inStock(true)
                         .warehouse(faker.number().numberBetween(10, 100))
-                        .supplierId(faker.number().numberBetween(1, 24))
+//                        .supplierId(faker.number().numberBetween(1, 24))
                         .build());
                 switch (property) {
                     case "product_name":
@@ -338,9 +338,9 @@ public class CustomerTestsSteps {
                     case "warehouse":
                         newProducts.get(i).setWarehouse(-1);
                         break;
-                    case "supplier_id":
-                        newProducts.get(i).setSupplierId(-1);
-                        break;
+//                    case "supplier_id":
+//                        newProducts.get(i).setSupplierId(-1);
+//                        break;
                 }
 
                 productObject.save(dbConnection, newProducts.get(i));
@@ -436,7 +436,7 @@ public class CustomerTestsSteps {
             assertNotNull(product.getPriceWithoutVat());
             assertNotNull(product.getWarehouse());
             assertNotNull(product.getPriceWithVat());
-            assertNotNull(product.getSupplierId());
+//            assertNotNull(product.getSupplierId());
             assertNotNull(product.getAvailableQuantity());
         }
     }

@@ -26,6 +26,6 @@ public class Product {
     boolean inStock;
     @Column(name = "warehouse")
     int warehouse;
-    @Column(name = "supplier_id")
-    int supplierId;
+//    @Column(name = "supplier_id")
+//    int supplierId;
 }

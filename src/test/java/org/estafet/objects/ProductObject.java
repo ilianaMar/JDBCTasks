@@ -1,5 +1,6 @@
 package org.estafet.objects;
 
+import ca.krasnay.sqlbuilder.*;
 import org.estafet.models.Product;
 import org.estafet.helpers.DatabaseDriver;
 
@@ -13,20 +14,30 @@ public class ProductObject extends DatabaseDriver implements DAOInterface<Produc
     private final String tableName = "public.products_inventory";
 
     public int save(Connection dbConnection, Product product) throws SQLException {
-        String query
-                = String.format("INSERT INTO %s(product_name, available_quantity, product_type, " +
-                "price_without_vat, in_stock, warehouse, supplier_id)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)", tableName);
-        PreparedStatement ps = dbConnection.prepareStatement(query);
-        ps.setString(1, product.getProductName());
-        ps.setInt(2, product.getAvailableQuantity());
-        ps.setString(3, product.getProductType());
-        ps.setFloat(4, product.getPriceWithoutVat());
-        ps.setBoolean(5, product.isInStock());
-        ps.setInt(6, product.getWarehouse());
-        ps.setInt(7, product.getSupplierId());
+        InsertBuilder insertBuilder = new InsertBuilder(tableName);
+        insertBuilder.set("product_name", String.format("'%s'", product.getProductName()))
+                .set("available_quantity", String.valueOf(product.getAvailableQuantity()))
+                .set("product_type", String.format("'%s'", product.getProductType()))
+                .set("price_without_vat", String.valueOf(product.getPriceWithoutVat()))
+                .set("in_stock", String.valueOf(product.isInStock()))
+                .set("warehouse", String.valueOf(product.getWarehouse()));
+
+
+//        String query
+//                = String.format("INSERT INTO %s(product_name, available_quantity, product_type, " +
+//                "price_without_vat, in_stock, warehouse)" +
+//                "VALUES (?, ?, ?, ?, ?, ?)", tableName);
+//        PreparedStatement ps = dbConnection.prepareStatement(query);
+//        ps.setString(1, product.getProductName());
+//        ps.setInt(2, product.getAvailableQuantity());
+//        ps.setString(3, product.getProductType());
+//        ps.setFloat(4, product.getPriceWithoutVat());
+//        ps.setBoolean(5, product.isInStock());
+//        ps.setInt(6, product.getWarehouse());
 //        System.out.println("33333 " + ps);
-        return insertDbTableRowData(dbConnection, ps);
+
+
+        return insertDbTableRowData(dbConnection, insertBuilder.toString());
     }
 
     public void delete(Connection dbConnection, int id) throws SQLException {

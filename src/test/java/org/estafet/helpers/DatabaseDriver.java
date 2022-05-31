@@ -33,6 +33,13 @@ public class DatabaseDriver {
         return queryRunner.insert(connection, String.valueOf(sql), scalarHandler);
     }
 
+    protected int insertDbTableRowData(Connection connection, String sql) throws SQLException {
+        System.out.println("sql " + sql);
+        ScalarHandler<Integer> scalarHandler = new ScalarHandler<>();
+        QueryRunner queryRunner = new QueryRunner();
+        return queryRunner.insert(connection, sql, scalarHandler);
+    }
+
     protected long getDbTableCount(Connection connection, String sql) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
         QueryRunner queryRunner = new QueryRunner();
