@@ -2,6 +2,7 @@ package org.estafet;
 
 import org.estafet.models.CustomerAddress;
 import org.estafet.objects.CustomerAddressObject;
+import org.junit.Ignore;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -106,6 +107,7 @@ public class FirstSuitTests {
 
     @Test
     @DisplayName("Get first customer is correct")
+    @Disabled
     void getFirstCustomer() throws SQLException {
         CustomerObject customerObject = new CustomerObject();
         List<Customer> customers = customerObject.getAll(dbConnection);
@@ -148,6 +150,7 @@ public class FirstSuitTests {
 
     @Test
     @DisplayName("Delete customer and address by id")
+    @Disabled
     void deleteSpecificCustomerData() throws SQLException {
         int customer_id = 11;
         int address_id = 0;
