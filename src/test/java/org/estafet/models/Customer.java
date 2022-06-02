@@ -1,12 +1,38 @@
 package org.estafet.models;
+
 import lombok.*;
+
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Builder
 @Data
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Customer {
-    String name, email , reason_for_deactivation, notes, phone;
-    int customer_id, age, address_id;
-    boolean is_active, gdpr_set;
-    Timestamp created_time, updated_time;
+    @Column(name="name")
+    String name;
+    @Column(name="email")
+    String email;
+    @Column(name="notes")
+    String notes;
+    @Column(name="phone")
+    String phone;
+    @Column(name="reason_for_deactivation")
+    String reasonForDeactivation;
+    @Column(name="customer_id")
+    int customerId;
+    @Column(name="age")
+    int age;
+    @Column(name="address_id")
+    int addressId;
+    @Column(name="active")
+    boolean active;
+    @Column(name="gdpr_set")
+    boolean gdprSet;
+    @Column(name="created_time")
+    Timestamp createdTime;
+    @Column(name="updated_time")
+    Timestamp updatedTime;
 }

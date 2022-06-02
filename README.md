@@ -15,3 +15,10 @@ automatically closed
 ### JDBC:DAO'S
 - Use Lombok builder annotation
 - Use DAO pattern to build application layer
+
+### JDBC: Database Tests
+- Use annotation @Entity from Java Persistence API (JPA) to map Java object to database tables
+- Use DBUtils library which is providing QueryRunner class and use ResultSetHandler for converting ResultSet instances 
+  into objects
+- Learn more for BeanListHandler and ScalarHandler
+- Learn how to use  library ca.krasnay.sqlbuilder for query builder
