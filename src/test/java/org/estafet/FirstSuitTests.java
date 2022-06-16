@@ -1,8 +1,16 @@
 package org.estafet;
 
+import org.estafet.jooqModels.tables.Customers;
+import org.estafet.jooqModels.tables.CustomersAddresses;
+import org.estafet.jooqModels.tables.records.CustomersAddressesRecord;
+import org.estafet.jooqModels.tables.records.CustomersRecord;
 import org.estafet.models.CustomerAddress;
 import org.estafet.objects.CustomerAddressObject;
-import org.junit.Ignore;
+import org.jooq.DSLContext;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+import org.jooq.meta.derby.sys.Sys;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -23,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @DisplayName("First test suite")
 public class FirstSuitTests {
@@ -95,14 +104,52 @@ public class FirstSuitTests {
     }
 
     @Test
-    @DisplayName("Third test with get all customers")
-    void testGetAllCustomers() throws SQLException {
-        CustomerObject customerObject = new CustomerObject();
-        List<Customer> customers = customerObject.getAll(dbConnection);
-//        System.out.println(customers.get(customers.size()-1));
-        for (Customer allCustomers : customers) {
-            System.out.println(allCustomers);
-        }
+    @DisplayName("Example jooq ORM")
+    void testGetAllCustomers() {
+        Faker faker = new Faker();
+
+        AtomicInteger addressId = new AtomicInteger();
+        DSLContext context = DSL.using(dbConnection, SQLDialect.POSTGRES);
+        CustomersAddressesRecord address = context.newRecord(CustomersAddresses.CUSTOMERS_ADDRESSES);
+        address.setAddress(faker.address().streetName());
+        address.setCity(faker.address().city());
+        address.setCountry(faker.address().country());
+        address.setState(faker.address().state());
+        address.setPostalCode(faker.number().numberBetween(1000, 9000));
+        address.store();
+        Result<?> results = context.select().from(CustomersAddresses.CUSTOMERS_ADDRESSES)
+                .orderBy(CustomersAddresses.CUSTOMERS_ADDRESSES.ADDRESS_ID.desc())
+                .limit(1)
+                .fetch();
+        results.forEach(result -> {
+            addressId.set(result.getValue(CustomersAddresses.CUSTOMERS_ADDRESSES.ADDRESS_ID));
+            System.out.println(addressId.get());
+        });
+        CustomersRecord customer = context.newRecord(Customers.CUSTOMERS);
+        customer.setName(String.format("%s %s", faker.name().firstName(), faker.name().lastName()));
+        customer.setActive(true);
+        customer.setEmail(faker.internet().emailAddress());
+        customer.setAge(faker.number().numberBetween(20, 90));
+        customer.setPhone(faker.phoneNumber().cellPhone());
+        customer.setGdprSet(true);
+        customer.setAddressId(addressId.get());
+        customer.store();
+        Result<?> customers = context.select()
+                .from(Customers.CUSTOMERS)
+                .orderBy(Customers.CUSTOMERS.ADDRESS_ID.desc())
+                .limit(1)
+                .fetch();
+
+        System.out.println(customers);
+        customers.forEach(user -> {
+            assertEquals(user.getValue(Customers.CUSTOMERS.ADDRESS_ID), addressId.get());
+            assertEquals(user.getValue(Customers.CUSTOMERS.NAME), customer.getName());
+            assertEquals(user.getValue(Customers.CUSTOMERS.PHONE), customer.getPhone());
+            assertEquals(user.getValue(Customers.CUSTOMERS.AGE), customer.getAge());
+            assertEquals(user.getValue(Customers.CUSTOMERS.EMAIL), customer.getEmail());
+            assertEquals(user.getValue(Customers.CUSTOMERS.ACTIVE), customer.getActive());
+            assertEquals(user.getValue(Customers.CUSTOMERS.GDPR_SET), customer.getGdprSet());
+        });
     }
 
     @Test
