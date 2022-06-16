@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd ">
+
+    <jdbc>
+        <driver>org.postgresql.Driver</driver>
+        <url>jdbc:postgresql://localhost:5432/orders_management</url>
+        <user>postgres</user>
+        <password>123456</password>
+    </jdbc>
+
+    <generator>
+        <name>org.jooq.codegen.JavaGenerator</name>
+
+        <database>
+            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+            <inputSchema>public</inputSchema>
+            <includes>.*</includes>
+            <excludes>views</excludes>
+        </database>
+
+        <target>
+            <packageName>org.estafet.jooqModels</packageName>
+            <directory>/Users/ilianamarkova/Projects/JDBCTasks/src/test/java</directory>
+        </target>
+    </generator>
+</configuration>
